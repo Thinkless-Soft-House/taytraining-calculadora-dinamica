@@ -87,7 +87,7 @@ body {
   border: none;
   gap: 8px;
   color: #f2f4f6;
-  background-color: #F52A8A;
+  background-color: #f52a8a;
   // width: 150px;
   // height: 40px;
   padding: 8px 24px;
@@ -100,7 +100,50 @@ body {
   }
 
   &:hover {
-    background-color: #F52A8A;
+    background-color: #f52a8a;
     cursor: pointer;
+  }
+}
+
+.custom-dialog-container .mat-mdc-dialog-container {
+  border-radius: 8px !important;
+  overflow: hidden;
+}
+
+// Customizar o backdrop do dialog
+.cdk-overlay-backdrop.custom-backdrop {
+  background-color: rgba(0, 0, 0, 0.6) !important; // Escuro com transparência
+  backdrop-filter: blur(2px); // Efeito de blur
+}
+
+// Alternativa: backdrop colorido
+.cdk-overlay-backdrop.colored-backdrop {
+  background-color: rgba(245, 42, 138, 0.3) !important; // Rosa com transparência
+}
+
+// Backdrop cinza claro
+.cdk-overlay-backdrop.light-backdrop {
+  background-color: rgba(248, 250, 252, 0.8) !important; // Cinza claro
+}
+
+// Backdrop animado
+.cdk-overlay-backdrop.animated-backdrop {
+  background: linear-gradient(45deg, rgba(245, 42, 138, 0.3), rgba(14, 154, 253, 0.3));
+  backdrop-filter: blur(3px);
+  transition: all 0.3s ease-in-out;
+}
+
+.cdk-overlay-backdrop.animated-backdrop.cdk-overlay-backdrop-showing {
+  opacity: 1;
+}
+
+// Remover setinhas dos inputs number globalmente
+input[type="number"] {
+  -moz-appearance: textfield; // Firefox
+
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none; // Chrome, Safari, Edge
+    margin: 0;
   }
 }

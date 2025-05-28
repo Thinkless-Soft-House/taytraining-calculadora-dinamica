@@ -189,60 +189,7 @@ export class DatatableComponent<T> implements OnInit, AfterViewInit, OnDestroy {
     filter: string | null,
     forceUpdate?: number,
   ) {
-    // Check if we have mock data and use it instead of service
-    if (this.settings.mockData) {
-      let filteredData = [...this.settings.mockData];
-
-      // Apply text filter if provided
-      if (filter && this.settings.filterConfiguration?.target) {
-        const filterLower = filter.toLowerCase();
-        filteredData = filteredData.filter(item =>
-          this.settings.filterConfiguration!.target!.some(field =>
-            String(this.getPropertyValue(item, field)).toLowerCase().includes(filterLower)
-          )
-        );
-      }
-
-      // Set total count for filtered data
-      this.totalCount = filteredData.length;
-
-      // Apply sorting if configured
-      if (sort && sort.active && sort.direction) {
-        filteredData.sort((a, b) => {
-          const aValue = this.getPropertyValue(a, sort.active);
-          const bValue = this.getPropertyValue(b, sort.active);
-
-          let comparison = 0;
-          if (aValue > bValue) comparison = 1;
-          if (aValue < bValue) comparison = -1;
-
-          return sort.direction === 'desc' ? comparison * -1 : comparison;
-        });
-      }
-
-      // Apply pagination if configured
-      if (this.settings.paginationConfiguration && page) {
-        const startIndex = page.pageIndex * page.pageSize;
-        const endIndex = startIndex + page.pageSize;
-        const paginatedData = filteredData.slice(startIndex, endIndex);
-
-        this.datasource.data = paginatedData as T[];
-        if (this.paginator) {
-          this.paginator.length = filteredData.length;
-        }
-      } else {
-        this.datasource.data = filteredData as T[];
-        if (this.paginator) {
-          this.paginator.length = filteredData.length;
-        }
-      }
-
-      this.isLoading = false;
-      this.cdr.markForCheck();
-      return;
-    }
-
-    // Original service-based logic for when mockData is not provided
+    // Remove all mock data handling logic - use only service-based logic
     let filters: Filter[] = [];
     if (this.settings.filters) {
       filters.push(...this.settings.filters);
@@ -288,7 +235,7 @@ export class DatatableComponent<T> implements OnInit, AfterViewInit, OnDestroy {
         next: (res) => {
           if (res) {
             this.datasource.data = (res as any).data.data as T[];
-            this.totalCount = (res as any).data.count; // Set total count from service response
+            this.totalCount = (res as any).data.count;
 
             if (this.paginator && this.settings.paginationConfiguration) {
               this.paginator.length = (res as any).data.count;
@@ -300,7 +247,7 @@ export class DatatableComponent<T> implements OnInit, AfterViewInit, OnDestroy {
         error: (err) => {
           console.error(err);
           this.datasource.data = [];
-          this.totalCount = 0; // Reset total count on error
+          this.totalCount = 0;
           if (this.paginator) this.paginator.length = 0;
           this.isLoading = false;
           this.cdr.markForCheck();
@@ -308,7 +255,7 @@ export class DatatableComponent<T> implements OnInit, AfterViewInit, OnDestroy {
       });
     } catch (error) {
       console.error(error);
-      this.totalCount = 0; // Reset total count on error
+      this.totalCount = 0;
       this.isLoading = false;
       this.cdr.markForCheck();
     }

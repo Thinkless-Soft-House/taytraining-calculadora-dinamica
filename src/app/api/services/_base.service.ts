@@ -1,142 +1,86 @@
-import { HttpClient } from "@angular/common/http";
-import { inject } from "@angular/core";
-import { injectQuery, injectMutation, injectQueryClient, QueryOptions, MutationOptions } from "@ngneat/query";
-import { environment } from "../../../environments/environment";
-import { map, Observable } from "rxjs";
+import { Observable, firstValueFrom, map } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
-interface GetOneResult<T> {
-  data: T;
-  ok: boolean;
-}
-
-export abstract class BaseService<T> {
-  protected endpoint: string = environment.apiUrl;
-
-  protected http = inject(HttpClient);
-  protected queryClient = injectQueryClient();
-
-  // Funções para criar queries e mutations
-  protected createQuery = injectQuery();
-  protected createMutation = injectMutation();
-
-  constructor(path: string) {
-    this.endpoint = this.endpoint + path;
+export class BaseModelService {
+  path: string;
+  constructor(subPath: string, public http: HttpClient) {
+    this.path = `${environment.apiUrl}${subPath}`;
   }
 
-  getAll(options: any = {}) {
-    const params = new URLSearchParams();
-    Object.entries(options).forEach(([key, value]) => {
-      params.set(key, value as any);
-    });
-
-    return {
-      result$: this.http.get<T[]>(this.endpoint + "?" + params.toString()),
-      isSuccess: true,
-    };
+  public async request(req: Observable<any>) {
+    return firstValueFrom(req);
   }
 
-  getOne(id: number, options: any = {}) {
-    const params = new URLSearchParams();
-    Object.entries(options).forEach(([key, value]) => {
-      params.set(key, value as any);
-    });
+  // private mockupRequest() {
+  //   return this.http
+  //     .get('https://binaryjazz.us/wp-json/genrenator/v1/genre/10 ')
+  //     .pipe(
+  //       map((res: any) => {
+  //         const ret = {
+  //           items: res.map((item: any, index: number) => {
+  //             return {
+  //               id: index,
+  //               name: item,
+  //             };
+  //           }),
+  //           total: res.length,
+  //         };
 
-    return {
-      result$: this.http.get<GetOneResult<T>>(`${this.endpoint}/${id}?${params.toString()}`),
-      isSuccess: true,
-    };
+  //         return ret;
+  //       })
+  //     );
+  // }
+
+  getAll() {
+    const req = this.http.get(this.path);
+    return this.request(req);
   }
 
-  // Método POST (Create One)
-  create(newEntity: T) {
-    return {
-      result$: this.http.post<T>(`${this.endpoint}`, newEntity),
-      isSuccess: true,
-    };
+  getByFilter(filter: { [key: string]: string }, relations?: string[]) {
+    const rel = relations ? relations.join(',') : '';
+
+    const filterQuery = Object.entries(filter).reduce(
+      (acc, [key, value], index) => {
+        return Object.entries(filter).length !== index + 1
+          ? `${acc}${key}=${value}&`
+          : `${acc}${key}=${value}`;
+      },
+      ''
+    );
+    const req = this.http.get(
+      `${this.path}/filter?${filterQuery}&relations=${rel}`
+    );
+    return this.request(req);
+    // return this.request(this.mockupRequest());
   }
 
-  // Método POST (Create Many)
-  createMany(newEntities: T[]) {
-    return {
-      result$: this.http.post<T[]>(`${this.endpoint}/many`, newEntities),
-      isSuccess: true,
-    };
+  getById(id: number, relations?: string[]) {
+    const rel = relations ? relations.join(',') : '';
+    const req = this.http.get(`${this.path}/${id}?relations=${rel}`);
+    return this.request(req);
   }
 
-  // Método PUT (Set One)
-  set(entity: T) {
-    return {
-      result$: this.http.put<T>(`${this.endpoint}`, entity),
-      isSuccess: true,
-    };
+  create(item: any) {
+    const req = this.http.post(this.path, item);
+    return this.request(req);
+  }
+  createMany(item: any[]) {
+    const req = this.http.post(`${this.path}/many/`, item);
+    return this.request(req);
   }
 
-  // Método PUT (Set Many)
-  setMany(entities: T[]) {
-    return {
-      result$: this.http.put<T[]>(`${this.endpoint}/many`, entities),
-      isSuccess: true,
-    };
+  update(id: number, item: any) {
+    const req = this.http.patch(`${this.path}/single/${id}`, item);
+    return this.request(req);
+  }
+  updateMany(id: number, item: any[]) {
+    const req = this.http.patch(`${this.path}/many`, item);
+    return this.request(req);
   }
 
-  // Método PATCH (Update One)
-  update(id: number, changes: Partial<T>) {
-    return {
-      result$: this.http.put<T>(`${this.endpoint}/${id}`, changes),
-      isSuccess: true,
-    };
-  }
-
-  // Método PATCH (Update Many)
-  updateMany(entities: Partial<T>[]) {
-    return {
-      result$: this.http.patch<T[]>(`${this.endpoint}/many`, entities),
-      isSuccess: true,
-    };
-  }
-
-  // Método DELETE (Delete One)
   delete(id: number) {
-    return {
-      result$: this.http.delete<void>(`${this.endpoint}/${id}`),
-      isSuccess: true,
-    };
-  }
-
-  // Método DELETE (Delete Many)
-  deleteMany(ids: number[]) {
-    return {
-      result$: this.http.request<void>("delete", `${this.endpoint}/many`, {
-        body: ids,
-      }),
-      isSuccess: true,
-    };
-  }
-
-  // Novo método para fazer consultas via /query endpoint
-  query(options: any = {}) {
-    let url = `${this.endpoint}/query`;
-
-    // Verifica se options é um array (filtros) ou uma string JSON
-    if (Array.isArray(options) || (typeof options === 'string' && options.startsWith('['))) {
-      // Adiciona como parâmetro filters
-      const filters = typeof options === 'string' ? options : JSON.stringify(options);
-      url += `?filters=${encodeURIComponent(filters)}`;
-    } else {
-      // Continua com o comportamento normal para objetos simples
-      const params = new URLSearchParams();
-      Object.entries(options).forEach(([key, value]) => {
-        params.set(key, String(value));
-      });
-
-      if (params.toString()) {
-        url += "?" + params.toString();
-      }
-    }
-
-    return {
-      result$: this.http.get<T[]>(url),
-      isSuccess: true,
-    };
+    const req = this.http.delete(`${this.path}/${id}`);
+    return this.request(req);
   }
 }

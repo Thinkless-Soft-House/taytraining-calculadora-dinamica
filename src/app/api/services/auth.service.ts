@@ -14,7 +14,6 @@ import {
 import { environment } from '../../../environments/environment';
 import { Router } from '@angular/router';
 import { User } from '../model/users.model';
-import { UsersService } from './users.service';
 
 @Injectable({
   providedIn: 'root',

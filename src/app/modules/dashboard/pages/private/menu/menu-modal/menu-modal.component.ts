@@ -19,7 +19,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MenuStatus } from '../../../../../../api/model/menu.model';
+import { Menu, MenuStatus } from '../../../../../../api/model/menu.model';
+import { MenuService } from '../../../../../../api/services/menu.service';
 
 @Component({
   selector: 'app-menu-modal',
@@ -60,8 +61,9 @@ export class MenuModalComponent implements OnInit {
 
   constructor(
     public dialogRef: MatDialogRef<MenuModalComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { id: number },
-    private cdr: ChangeDetectorRef
+    @Inject(MAT_DIALOG_DATA) public data: { id: number; menu?: any },
+    private cdr: ChangeDetectorRef,
+    private menuService: MenuService
   ) { }
 
   async ngOnInit(): Promise<void> {
@@ -78,29 +80,30 @@ export class MenuModalComponent implements OnInit {
     const menuId = this.data.id;
     console.log('Menu ID:', menuId);
 
-    if (menuId !== -1) {
+    if (menuId !== -1 && this.data.menu) {
+      this.menu = this.data.menu;
       this.form.patchValue({
         name: this.menu?.name || '',
-        caloriasMinimas: this.extractCaloriesMin(this.menu?.faixaCalorica) || '',
-        caloriasMaximas: this.extractCaloriesMax(this.menu?.faixaCalorica) || '',
-        pdfUrl: this.menu?.pdf || '',
+        caloriasMinimas: this.extractCaloriesMin(this.menu?.description) || '',
+        caloriasMaximas: this.extractCaloriesMax(this.menu?.description) || '',
+        pdfUrl: this.menu?.pdfUrl || '',
         ativo: this.menu?.status === MenuStatus.ACTIVE,
       });
       this.isLoading = false;
     } else {
-      console.log('Fetching menu data for ID:', menuId);
+      console.log('Creating new menu');
       this.createFormData();
       this.isLoading = false;
     }
   }
 
-  private extractCaloriesMin(faixaCalorica: string): number {
-    const match = faixaCalorica?.match(/(\d+)-\d+/);
+  private extractCaloriesMin(description: string): number {
+    const match = description?.match(/(\d+)-\d+/);
     return match ? parseInt(match[1]) : 0;
   }
 
-  private extractCaloriesMax(faixaCalorica: string): number {
-    const match = faixaCalorica?.match(/\d+-(\d+)/);
+  private extractCaloriesMax(description: string): number {
+    const match = description?.match(/\d+-(\d+)/);
     return match ? parseInt(match[1]) : 0;
   }
 
@@ -131,16 +134,29 @@ export class MenuModalComponent implements OnInit {
     this.isSaving = true;
     const formValue = this.form.value;
 
-    // Map the boolean toggle to MenuStatus enum
-    const menuData = {
-      ...formValue,
-      status: formValue.ativo ? MenuStatus.ACTIVE : MenuStatus.INACTIVE
+    // Prepare data for backend
+    const menuData: Partial<Menu> = {
+      name: formValue.name,
+      description: `Cardápio com faixa calórica de ${caloriasMin}-${caloriasMax} calorias`,
+      pdfUrl: formValue.pdfUrl,
+      status: formValue.ativo ? MenuStatus.ACTIVE : MenuStatus.INACTIVE,
     };
 
     try {
-      this.dialogRef.close(menuData);
+      if (this.data.id === -1) {
+        // Create new menu using BaseModelService method
+        const createdMenu = await this.menuService.create(menuData);
+        console.log('Menu criado com sucesso:', createdMenu);
+        this.dialogRef.close({ success: true, menu: createdMenu });
+      } else {
+        // Update existing menu using BaseModelService method
+        const updatedMenu = await this.menuService.update(this.data.id, menuData);
+        console.log('Menu atualizado com sucesso:', updatedMenu);
+        this.dialogRef.close({ success: true, menu: updatedMenu });
+      }
     } catch (error) {
       console.error('Erro ao salvar cardápio:', error);
+      // You might want to show a snackbar or toast here
     } finally {
       this.isSaving = false;
     }

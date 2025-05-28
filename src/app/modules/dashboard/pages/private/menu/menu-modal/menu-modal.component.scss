@@ -1,3 +1,13 @@
+// Estilo para o dialog container
+::ng-deep .mat-mdc-dialog-container {
+  border-radius: 8px !important;
+  overflow: hidden;
+}
+
+::ng-deep .mdc-dialog__surface {
+  border-radius: 8px !important;
+}
+
 .modal-container {
   display: flex;
   align-items: flex-start;
@@ -63,6 +73,17 @@
         margin-top: 8px;
       }
     }
+
+    // Remover setinhas dos inputs number
+    input[type="number"] {
+      -moz-appearance: textfield; // Firefox
+
+      &::-webkit-outer-spin-button,
+      &::-webkit-inner-spin-button {
+        -webkit-appearance: none; // Chrome, Safari, Edge
+        margin: 0;
+      }
+    }
   }
 
   .footer {
@@ -73,8 +94,37 @@
     gap: 8px;
 
     .btn-cancel {
-      background-color: var(--bs-red);
-      color: white;
+      border-radius: 10px;
+      background-color: transparent;
+      color: #020817;
+      border: 1px solid #020817;
+
+      &:hover {
+        background-color: #f3f4f6;
+        color: #020817;
+      }
+    }
+
+    .btn-save {
+      border-radius: 10px;
+      --mdc-filled-button-container-color: #f52a8a;
+      --mdc-filled-button-label-text-color: #f2f4f6;
+
+      &:hover {
+        --mdc-filled-button-container-color: #f52a8a;
+        --mdc-filled-button-label-text-color: #f2f4f6;
+      }
+    }
+
+    .button-content {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .loading-spinner {
+      width: 20px;
+      height: 20px;
     }
   }
 }

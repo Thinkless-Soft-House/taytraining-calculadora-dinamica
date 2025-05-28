@@ -1,14 +1,13 @@
 import { BaseModel } from "./_base.model";
 
 export enum MenuStatus {
-  ACTIVE = 'ACTIVE',
-  INACTIVE = 'INACTIVE'
+  ACTIVE = 'active',
+  INACTIVE = 'inactive'
 }
 
-export interface MenuFormData extends BaseModel{
+export interface Menu extends BaseModel {
   name: string;
-  caloriasMinimas: number;
-  caloriasMaximas: number;
+  description: string;
   pdfUrl: string;
   status: MenuStatus;
 }

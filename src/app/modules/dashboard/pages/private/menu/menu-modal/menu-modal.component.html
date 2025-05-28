@@ -1,6 +1,6 @@
 <div class="modal-container">
   <div class="header">
-    <h2 class="title">{{ data.id === -1 ? "Criar" : "Editar" }} Cardápio</h2>
+    <h2 class="title">{{ data.id === -1 ? "Novo" : "Editar" }} Cardápio</h2>
     <button mat-icon-button>
       <mat-icon class="mat-18" (click)="dialogRef.close()"> close </mat-icon>
     </button>
@@ -61,11 +61,14 @@
   </div>
 
   <div class="footer">
+    <button mat-button class="btn-cancel" (click)="dialogRef.close()">
+      Cancelar
+    </button>
     <button mat-flat-button color="primary" class="btn-save" [disabled]="!form.valid || isSaving" (click)="saveMenu()">
       <div class="button-content">
         <mat-spinner *ngIf="isSaving" diameter="20" class="loading-spinner"></mat-spinner>
         <span>
-          {{ isSaving ? "Salvando..." : (data.id === -1 ? "Cadastrar" : "Salvar") }}
+          {{ isSaving ? "Salvando..." : (data.id === -1 ? "Criar cardápio" : "Salvar alterações") }}
         </span>
       </div>
     </button>

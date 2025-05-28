@@ -3,16 +3,8 @@ import { DatatableComponent, DataTableSettings, TypeColumn } from '../../../../.
 import { BehaviorSubject } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { MenuModalComponent } from './menu-modal/menu-modal.component';
-import { MenuFormData, MenuStatus } from '../../../../../api/model/menu.model';
-
-interface MenuData {
-  id: number;
-  nomeCardapio: string;
-  descricao: string;
-  faixaCalorica: string;
-  status: string;
-  pdf: string;
-}
+import { MenuService } from '../../../../../api/services/menu.service';
+import { Menu } from '../../../../../api/model/menu.model';
 
 @Component({
   selector: 'app-menu',
@@ -26,66 +18,10 @@ export class MenuComponent implements OnInit {
   updateTable = new BehaviorSubject<number>(0)
   updateTableCount = 0;
 
-  mockData: MenuData[] = [
-    {
-      id: 1,
-      nomeCardapio: 'Cardápio Saudável',
-      descricao: 'Cardápio balanceado com alimentos nutritivos e frescos para uma alimentação saudável',
-      faixaCalorica: '1200-1500 kcal',
-      status: 'ACTIVE',
-      pdf: 'cardapio_saudavel.pdf'
-    },
-    {
-      id: 2,
-      nomeCardapio: 'Cardápio Fitness',
-      descricao: 'Cardápio rico em proteínas e baixo em carboidratos, ideal para quem pratica exercícios',
-      faixaCalorica: '1500-1800 kcal',
-      status: 'ACTIVE',
-      pdf: 'cardapio_fitness.pdf'
-    },
-    {
-      id: 3,
-      nomeCardapio: 'Cardápio Vegetariano',
-      descricao: 'Cardápio sem carnes, com foco em vegetais, legumes e proteínas vegetais',
-      faixaCalorica: '1000-1300 kcal',
-      status: 'INACTIVE',
-      pdf: 'cardapio_vegetariano.pdf'
-    },
-    {
-      id: 4,
-      nomeCardapio: 'Cardápio Mediterrâneo',
-      descricao: 'Baseado na dieta mediterrânea com azeite, peixes, frutas e vegetais',
-      faixaCalorica: '1600-2000 kcal',
-      status: 'ACTIVE',
-      pdf: 'cardapio_mediterraneo.pdf'
-    },
-    {
-      id: 5,
-      nomeCardapio: 'Cardápio Low Carb',
-      descricao: 'Cardápio com baixo teor de carboidratos, focado em proteínas e gorduras saudáveis',
-      faixaCalorica: '1300-1600 kcal',
-      status: 'INACTIVE',
-      pdf: 'cardapio_lowcarb.pdf'
-    },
-    {
-      id: 6,
-      nomeCardapio: 'Cardápio Low Carb',
-      descricao: 'Cardápio com baixo teor de carboidratos, focado em proteínas e gorduras saudáveis',
-      faixaCalorica: '1300-1600 kcal',
-      status: 'INACTIVE',
-      pdf: 'cardapio_lowcarb.pdf'
-    },
-    {
-      id: 7,
-      nomeCardapio: 'Cardápio Low Carb',
-      descricao: 'Cardápio com baixo teor de carboidratos, focado em proteínas e gorduras saudáveis',
-      faixaCalorica: '1300-1600 kcal',
-      status: 'INACTIVE',
-      pdf: 'cardapio_lowcarb.pdf'
-    }
-  ];
-
-  constructor(private dialog: MatDialog) {}
+  constructor(
+    private dialog: MatDialog,
+    private menuService: MenuService
+  ) {}
 
   ngOnInit(): void {
     this.initializeDatatable();
@@ -93,8 +29,7 @@ export class MenuComponent implements OnInit {
 
   private initializeDatatable(): void {
     this.datatableSettings = {
-      source: 'menu',
-      mockData: this.mockData,
+      source: '/menu-calculator', // Remove the leading slash
       titleConfiguration: {
         title: 'Gestão de Cardápios',
         singularLabel: 'cardápio',
@@ -102,23 +37,16 @@ export class MenuComponent implements OnInit {
       },
       columns: [
         {
-          name: 'nomeCardapio',
+          name: 'name',
           label: 'Nome do Cardápio',
           type: TypeColumn.STRING,
           sortable: true,
           display: true
         },
         {
-          name: 'descricao',
+          name: 'description',
           label: 'Descrição',
           type: TypeColumn.LONGSTRING,
-          sortable: true,
-          display: true
-        },
-        {
-          name: 'faixaCalorica',
-          label: 'Faixa Calórica',
-          type: TypeColumn.STRING,
           sortable: true,
           display: true
         },
@@ -130,19 +58,17 @@ export class MenuComponent implements OnInit {
           display: true,
           extra: {
             labels: {
-              'ACTIVE': 'Ativo',
-              'INACTIVE': 'Inativo',
-              'PENDING': 'Pendente'
+              'active': 'Ativo',
+              'inactive': 'Inativo'
             },
             styles: {
-              'ACTIVE': 'status-active',
-              'INACTIVE': 'status-inactive',
-              'PENDING': 'status-pending'
+              'active': 'status-active',
+              'inactive': 'status-inactive'
             }
           }
         },
         {
-          name: 'pdf',
+          name: 'pdfUrl',
           label: 'PDF',
           type: TypeColumn.ACTIONS,
           sortable: false,
@@ -151,9 +77,9 @@ export class MenuComponent implements OnInit {
             {
               name: 'download',
               icon: 'pdf',
-              handler: (action: string, row: MenuData) => {
-                console.log('Baixando PDF:', row.pdf);
-                // Implementar lógica de download aqui
+              handler: (action: string, row: Menu) => {
+                console.log('Baixando PDF:', row.pdfUrl);
+                window.open(row.pdfUrl, '_blank');
               },
               tooltip: 'Baixar PDF do cardápio'
             }
@@ -166,8 +92,8 @@ export class MenuComponent implements OnInit {
           sortable: false,
           display: true,
           events: [
-            { name: 'EDIT', icon: 'edit', handler: (ctx: string, item: any) => this.edit(item.id), tooltip: 'Editar' },
-            { name: 'DELETE', icon: 'delete', handler: (ctx: string, item: any) => this.delete(item.id), tooltip: 'Deletar' },
+            { name: 'EDIT', icon: 'edit', handler: (ctx: string, item: Menu) => this.edit(item.id), tooltip: 'Editar' },
+            { name: 'DELETE', icon: 'delete', handler: (ctx: string, item: Menu) => this.delete(item.id), tooltip: 'Deletar' },
           ]
         }
       ],
@@ -176,14 +102,14 @@ export class MenuComponent implements OnInit {
         pageSizeOptions: [5, 10, 25, 50]
       },
       sortConfiguration: {
-        active: 'nomeCardapio',
+        active: 'name',
         direction: 'asc'
       },
       filterConfiguration: {
-        target: ['nomeCardapio', 'descricao', 'faixaCalorica']
+        target: ['name', 'description']
       },
       mobileConfiguration: {
-        columnNames: ['nomeCardapio', 'descricao', 'status', 'actions']
+        columnNames: ['name', 'description', 'status', 'actions']
       },
       forceUpdate$: this.forceUpdate$,
       events: [
@@ -206,19 +132,37 @@ export class MenuComponent implements OnInit {
   }
 
   edit(id: number) {
-    this.openDetailsModal('edit', +id);
+    this.openDetailsModal('edit', id);
   }
 
   async delete(id: number) {
-    console.log('Deletando cardápio com ID:', id);
-    //TODO: Implementar abertura de modal de confirmação
+    try {
+      await this.menuService.delete(id);
+      console.log('Cardápio deletado com sucesso');
+      this.refreshTable();
+    } catch (error) {
+      console.error('Erro ao deletar cardápio:', error);
+    }
   }
 
-  private openDetailsModal(action: 'create' | 'edit', id?: number) {
+  private async openDetailsModal(action: 'create' | 'edit', id?: number) {
     console.log(`Abrindo modal de ${action} para o cardápio com ID:`, id);
-    const menuData = id ? this.mockData.find(item => item.id === id) : null;
+
+    let menuData = null;
+    if (id && action === 'edit') {
+      try {
+        const response = await this.menuService.getById(id);
+        menuData = response.data || response; // Handle different response formats
+      } catch (error) {
+        console.error('Erro ao carregar dados do cardápio:', error);
+      }
+    }
 
     const ref = this.dialog.open(MenuModalComponent, {
+      panelClass: 'custom-dialog-container',
+      backdropClass: 'custom-backdrop',
+      hasBackdrop: true,
+      disableClose: false,
       data: {
         id: id ?? -1,
         menu: menuData
@@ -226,54 +170,21 @@ export class MenuComponent implements OnInit {
     });
 
     ref.afterClosed().subscribe((res: any) => {
-      if (res) {
-        if (action === 'create') {
-          this.createMenu(res);
-        } else if (id) {
-          this.updateMenu(id, res);
-        }
+      if (res?.success) {
+        this.refreshTable();
 
-        this.updateTableCount++;
-        this.updateTable.next(this.updateTableCount);
-
-        const description =
-          action === 'create'
-            ? 'Cardápio criado com sucesso!'
-            : 'Cardápio editado com sucesso!';
+        const description = action === 'create'
+          ? 'Cardápio criado com sucesso!'
+          : 'Cardápio editado com sucesso!';
 
         console.log(description);
       }
     });
   }
 
-  private createMenu(formData: any): void {
-    const newMenu: MenuData = {
-      id: Math.max(...this.mockData.map(item => item.id)) + 1,
-      nomeCardapio: formData.name,
-      descricao: '', // You might want to add description field to the modal
-      faixaCalorica: `${formData.caloriasMinimas}-${formData.caloriasMaximas} kcal`,
-      status: formData.status,
-      pdf: formData.pdfUrl
-    };
-
-    this.mockData.push(newMenu);
+  private refreshTable(): void {
+    this.updateTableCount++;
+    this.updateTable.next(this.updateTableCount);
     this.forceUpdate$.next(this.forceUpdate$.value + 1);
-    console.log('Novo cardápio criado:', newMenu);
-  }
-
-  private updateMenu(id: number, formData: any): void {
-    const index = this.mockData.findIndex(item => item.id === id);
-    if (index !== -1) {
-      this.mockData[index] = {
-        ...this.mockData[index],
-        nomeCardapio: formData.name,
-        faixaCalorica: `${formData.caloriasMinimas}-${formData.caloriasMaximas} kcal`,
-        status: formData.status,
-        pdf: formData.pdfUrl
-      };
-
-      this.forceUpdate$.next(this.forceUpdate$.value + 1);
-      console.log('Cardápio atualizado:', this.mockData[index]);
-    }
   }
 }
