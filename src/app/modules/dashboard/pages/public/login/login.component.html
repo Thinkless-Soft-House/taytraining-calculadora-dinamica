@@ -20,8 +20,11 @@
         <input matInput type="password" formControlName="password" placeholder="********" />
       </mat-form-field>
 
-      <button mat-raised-button color="primary" type="submit" [disabled]="!loginForm.valid" class="login-button">
-        Entrar
+      <button mat-raised-button color="primary" type="submit" [disabled]="!loginForm.valid || isLoading" class="login-button">
+        <div class="login-loading">
+          <mat-spinner *ngIf="isLoading" diameter="20" class="custom-spinner"></mat-spinner>
+          {{ isLoading ? 'Entrando...' : 'Entrar' }}
+        </div>
       </button>
     </form>
   </div>

@@ -72,6 +72,9 @@
       padding: 8px 16px;
       border: none;
       border-radius: calc(0.5rem - 2px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
 
       &:hover:not(:disabled) {
         background-color: darken(#f52a8a, 10%) !important;
@@ -80,6 +83,27 @@
       &:disabled {
         background-color: #cccccc !important;
         color: white !important;
+
+        .login-loading {
+          color: #f52a8a !important;
+        }
+      }
+
+      .login-loading {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        min-width: 120px;
+      }
+
+      .custom-spinner {
+        margin-right: 8px;
+
+        ::ng-deep circle {
+          stroke: #f52a8a !important;
+        }
       }
     }
   }
