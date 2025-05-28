@@ -2,6 +2,7 @@
     display: block;
     min-height: 100vh;
     overflow: hidden;
+    background-color: #f9fafb !important;
   }
 
   .drawer-container {
@@ -35,6 +36,7 @@
       width: 100%;
       display: flex;
       flex-direction: column;
+      padding: 32px;
     }
 
     .sidenav-content {
@@ -62,7 +64,7 @@
       .content-wrapper {
         max-width: 1200px; // Define max-width for large screens
         margin: 0 auto; // Center horizontally
-        padding: 0 16px; // Add some padding
+        padding: 32px; // Add some padding
         width: 100%;
       }
     }
@@ -142,6 +144,13 @@
   .content-wrapper {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0 16px;
+    padding: 32px;
     width: 100%;
+  }
+
+  .dashboard-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: #f9fafb;
   }

@@ -1,7 +1,14 @@
 /* You can add global styles to this file, and also import other style files */
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  background-color: #f9fafb !important;
+}
 
 .short-input {
   height: 40px;
@@ -69,5 +76,31 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
   .mdc-button__label {
     color: white !important;
+  }
+}
+
+.button-options {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  border: none;
+  gap: 8px;
+  color: #f2f4f6;
+  background-color: #F52A8A;
+  // width: 150px;
+  // height: 40px;
+  padding: 8px 24px;
+  border-radius: 10px;
+
+  mat-icon {
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+  }
+
+  &:hover {
+    background-color: #F52A8A;
+    cursor: pointer;
   }
 }
