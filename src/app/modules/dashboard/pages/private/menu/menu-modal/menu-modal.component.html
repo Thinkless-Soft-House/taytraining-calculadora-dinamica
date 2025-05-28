@@ -1,0 +1,73 @@
+<div class="modal-container">
+  <div class="header">
+    <h2 class="title">{{ data.id === -1 ? "Criar" : "Editar" }} Cardápio</h2>
+    <button mat-icon-button>
+      <mat-icon class="mat-18" (click)="dialogRef.close()"> close </mat-icon>
+    </button>
+  </div>
+
+  <div class="content">
+    <ng-container *ngIf="isLoading; else contentLoaded">
+      <div class="loading-container">
+        <div class="loading-content">
+          <mat-spinner diameter="50"></mat-spinner>
+          <p>Carregando...</p>
+        </div>
+      </div>
+    </ng-container>
+
+    <ng-template #contentLoaded>
+      <form [formGroup]="form">
+        <div class="labels-container">
+          <div class="labels">
+            <mat-label>Nome do Cardápio</mat-label>
+            <mat-form-field appearance="outline" class="menu-input short-input">
+              <input matInput formControlName="name" placeholder="Digite o nome do cardápio" />
+            </mat-form-field>
+          </div>
+
+          <div class="row">
+            <div class="labels">
+              <mat-label>Calorias Mínimas</mat-label>
+              <mat-form-field appearance="outline" class="menu-input short-input">
+                <input matInput type="number" formControlName="caloriasMinimas" placeholder="0" />
+              </mat-form-field>
+            </div>
+
+            <div class="labels">
+              <mat-label>Calorias Máximas</mat-label>
+              <mat-form-field appearance="outline" class="menu-input short-input">
+                <input matInput type="number" formControlName="caloriasMaximas" placeholder="0" />
+              </mat-form-field>
+            </div>
+          </div>
+
+          <div class="labels">
+            <mat-label>URL do PDF</mat-label>
+            <mat-form-field appearance="outline" class="menu-input short-input">
+              <input matInput formControlName="pdfUrl" placeholder="https://exemplo.com/cardapio.pdf" />
+            </mat-form-field>
+          </div>
+
+          <div class="labels toggle-container">
+            <mat-label>Status</mat-label>
+            <mat-slide-toggle formControlName="ativo" color="primary">
+              {{form.get('ativo')?.value ? 'Ativo' : 'Inativo'}}
+            </mat-slide-toggle>
+          </div>
+        </div>
+      </form>
+    </ng-template>
+  </div>
+
+  <div class="footer">
+    <button mat-flat-button color="primary" class="btn-save" [disabled]="!form.valid || isSaving" (click)="saveMenu()">
+      <div class="button-content">
+        <mat-spinner *ngIf="isSaving" diameter="20" class="loading-spinner"></mat-spinner>
+        <span>
+          {{ isSaving ? "Salvando..." : (data.id === -1 ? "Cadastrar" : "Salvar") }}
+        </span>
+      </div>
+    </button>
+  </div>
+</div>

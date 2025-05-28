@@ -1,0 +1,80 @@
+.modal-container {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  flex-direction: column;
+  gap: 16px;
+
+  min-width: 400px;
+  min-height: 350px;
+  padding: 16px;
+  border-radius: 8px;
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    border-bottom: 1px solid #f2f4f6;
+
+    .title {
+      font-size: 1.5rem;
+      line-height: 1.75rem;
+      font-weight: 600;
+      margin: 0;
+    }
+  }
+
+  .content {
+    .labels-container {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      width: 100%;
+    }
+
+    .labels {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+    }
+
+    .row {
+      display: flex;
+      gap: 16px;
+
+      .labels {
+        flex: 1;
+      }
+    }
+
+    mat-label {
+      font-family: "Mukta Mahee", sans-serif;
+      font-weight: 400;
+      font-size: 15px;
+    }
+
+    .menu-input {
+      width: 100%;
+    }
+
+    .toggle-container {
+      .mat-mdc-slide-toggle {
+        margin-top: 8px;
+      }
+    }
+  }
+
+  .footer {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 8px;
+
+    .btn-cancel {
+      background-color: var(--bs-red);
+      color: white;
+    }
+  }
+}
