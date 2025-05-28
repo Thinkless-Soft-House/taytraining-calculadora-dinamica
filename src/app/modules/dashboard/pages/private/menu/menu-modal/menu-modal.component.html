@@ -7,11 +7,11 @@
   </div>
 
   <div class="content">
-    <ng-container *ngIf="isLoading; else contentLoaded">
+    <ng-container *ngIf="isLoadingData; else contentLoaded">
       <div class="loading-container">
         <div class="loading-content">
           <mat-spinner diameter="50"></mat-spinner>
-          <p>Carregando...</p>
+          <p>Carregando dados do cardápio...</p>
         </div>
       </div>
     </ng-container>
@@ -64,7 +64,7 @@
     <button mat-button class="btn-cancel" (click)="dialogRef.close()">
       Cancelar
     </button>
-    <button mat-flat-button color="primary" class="btn-save" [disabled]="!form.valid || isSaving" (click)="saveMenu()">
+    <button mat-flat-button color="primary" class="btn-save" [disabled]="!form.valid || isSaving || isLoadingData" (click)="saveMenu()">
       <div class="button-content">
         <mat-spinner *ngIf="isSaving" diameter="20" class="loading-spinner"></mat-spinner>
         <span>

@@ -10,4 +10,6 @@ export interface Menu extends BaseModel {
   description: string;
   pdfUrl: string;
   status: MenuStatus;
+  minCalories: number;
+  maxCalories: number;
 }

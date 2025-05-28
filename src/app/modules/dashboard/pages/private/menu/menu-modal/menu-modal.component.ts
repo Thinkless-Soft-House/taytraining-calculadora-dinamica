@@ -19,6 +19,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Menu, MenuStatus } from '../../../../../../api/model/menu.model';
 import { MenuService } from '../../../../../../api/services/menu.service';
 
@@ -37,6 +38,7 @@ import { MenuService } from '../../../../../../api/services/menu.service';
     MatSelectModule,
     MatProgressSpinnerModule,
     MatSlideToggleModule,
+    MatSnackBarModule,
   ],
   templateUrl: './menu-modal.component.html',
   styleUrl: './menu-modal.component.scss',
@@ -44,6 +46,7 @@ import { MenuService } from '../../../../../../api/services/menu.service';
 export class MenuModalComponent implements OnInit {
   isLoading: boolean = false;
   isSaving: boolean = false;
+  isLoadingData: boolean = false;
 
   menu: any | null = null;
   viewStarted: boolean = false;
@@ -53,22 +56,21 @@ export class MenuModalComponent implements OnInit {
 
   form: FormGroup = new FormGroup({
     name: new FormControl('', [Validators.required, Validators.maxLength(100)]),
-    caloriasMinimas: new FormControl('', [Validators.required, Validators.min(1)]),
-    caloriasMaximas: new FormControl('', [Validators.required, Validators.min(1)]),
+    caloriasMinimas: new FormControl('', [Validators.required]),
+    caloriasMaximas: new FormControl('', [Validators.required]),
     pdfUrl: new FormControl('', [Validators.required]),
     ativo: new FormControl(true, [Validators.required]),
   });
 
   constructor(
     public dialogRef: MatDialogRef<MenuModalComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { id: number; menu?: any },
+    @Inject(MAT_DIALOG_DATA) public data: { id: number },
     private cdr: ChangeDetectorRef,
-    private menuService: MenuService
+    private menuService: MenuService,
+    private snackBar: MatSnackBar
   ) { }
 
   async ngOnInit(): Promise<void> {
-    this.isLoading = true;
-
     try {
       await this.initializeMenuData();
     } catch (error) {
@@ -80,31 +82,27 @@ export class MenuModalComponent implements OnInit {
     const menuId = this.data.id;
     console.log('Menu ID:', menuId);
 
-    if (menuId !== -1 && this.data.menu) {
-      this.menu = this.data.menu;
-      this.form.patchValue({
-        name: this.menu?.name || '',
-        caloriasMinimas: this.extractCaloriesMin(this.menu?.description) || '',
-        caloriasMaximas: this.extractCaloriesMax(this.menu?.description) || '',
-        pdfUrl: this.menu?.pdfUrl || '',
-        ativo: this.menu?.status === MenuStatus.ACTIVE,
-      });
-      this.isLoading = false;
+    if (menuId !== -1) {
+      this.isLoadingData = true;
+      try {
+        const response = await this.menuService.getById(menuId);
+        this.menu = response.data || response;
+        this.form.patchValue({
+          name: this.menu?.name || '',
+          caloriasMinimas: this.menu?.minCalories || '',
+          caloriasMaximas: this.menu?.maxCalories || '',
+          pdfUrl: this.menu?.pdfUrl || '',
+          ativo: this.menu?.status === MenuStatus.ACTIVE,
+        });
+      } catch (error) {
+        console.error('Erro ao carregar dados do cardápio:', error);
+      } finally {
+        this.isLoadingData = false;
+      }
     } else {
       console.log('Creating new menu');
       this.createFormData();
-      this.isLoading = false;
     }
-  }
-
-  private extractCaloriesMin(description: string): number {
-    const match = description?.match(/(\d+)-\d+/);
-    return match ? parseInt(match[1]) : 0;
-  }
-
-  private extractCaloriesMax(description: string): number {
-    const match = description?.match(/\d+-(\d+)/);
-    return match ? parseInt(match[1]) : 0;
   }
 
   private createFormData() {
@@ -126,11 +124,6 @@ export class MenuModalComponent implements OnInit {
     const caloriasMin = this.form.get('caloriasMinimas')?.value;
     const caloriasMax = this.form.get('caloriasMaximas')?.value;
 
-    if (caloriasMax <= caloriasMin) {
-      console.error('Calorias máximas devem ser maiores que as mínimas');
-      return;
-    }
-
     this.isSaving = true;
     const formValue = this.form.value;
 
@@ -140,6 +133,8 @@ export class MenuModalComponent implements OnInit {
       description: `Cardápio com faixa calórica de ${caloriasMin}-${caloriasMax} calorias`,
       pdfUrl: formValue.pdfUrl,
       status: formValue.ativo ? MenuStatus.ACTIVE : MenuStatus.INACTIVE,
+      minCalories: caloriasMin,
+      maxCalories: caloriasMax,
     };
 
     try {
@@ -147,18 +142,35 @@ export class MenuModalComponent implements OnInit {
         // Create new menu using BaseModelService method
         const createdMenu = await this.menuService.create(menuData);
         console.log('Menu criado com sucesso:', createdMenu);
+        this.snackBar.open('Cardápio criado com sucesso!', '✓', {
+          duration: 3000,
+          panelClass: ['success-snackbar'],
+          horizontalPosition: 'right',
+          verticalPosition: 'top'
+        });
         this.dialogRef.close({ success: true, menu: createdMenu });
       } else {
         // Update existing menu using BaseModelService method
         const updatedMenu = await this.menuService.update(this.data.id, menuData);
         console.log('Menu atualizado com sucesso:', updatedMenu);
+        this.snackBar.open('Cardápio atualizado com sucesso!', '✓', {
+          duration: 3000,
+          panelClass: ['success-snackbar'],
+          horizontalPosition: 'right',
+          verticalPosition: 'top'
+        });
         this.dialogRef.close({ success: true, menu: updatedMenu });
       }
-    } catch (error) {
-      console.error('Erro ao salvar cardápio:', error);
-      // You might want to show a snackbar or toast here
-    } finally {
+    } catch (error: any) {
       this.isSaving = false;
+      console.error('Erro ao salvar cardápio:', error);
+      const errorMessage = error.error?.message || 'Erro ao salvar cardápio. Tente novamente.';
+      this.snackBar.open(errorMessage, '✕', {
+        duration: 5000,
+        panelClass: ['error-snackbar'],
+        horizontalPosition: 'right',
+        verticalPosition: 'top'
+      });
     }
   }
 }

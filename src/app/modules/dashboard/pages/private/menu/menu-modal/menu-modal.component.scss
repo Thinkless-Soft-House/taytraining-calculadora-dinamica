@@ -36,6 +36,33 @@
   }
 
   .content {
+    .loading-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-width: 400px;
+      min-height: 200px;
+
+      .loading-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+
+        mat-spinner {
+          ::ng-deep circle {
+            stroke: #f52a8a !important;
+          }
+        }
+
+        p {
+          margin: 0;
+          color: #6b7280;
+          font-size: 14px;
+        }
+      }
+    }
+
     .labels-container {
       display: flex;
       flex-direction: column;
@@ -125,6 +152,10 @@
     .loading-spinner {
       width: 20px;
       height: 20px;
+
+      ::ng-deep circle {
+        stroke: #f52a8a !important;
+      }
     }
   }
 }

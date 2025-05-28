@@ -103,16 +103,16 @@
           }
           @case (TypeColumn.TRANSFORMTEXT) {
           <span class="text-column-style"
-            matTooltip="{{ column.extra?.labels ? column.extra?.labels[column.transform!(getPropertyValue(row, column.attr ?? column.name))] ?? column.transform!(getPropertyValue(row, column.attr ?? column.name)) : column.transform!(getPropertyValue(row, column.attr ?? column.name)) }}"
+            matTooltip="{{ column.extra?.labels ? column.extra?.labels[column.transform!(row)] ?? column.transform!(row) : column.transform!(row) }}"
             matTooltipShowDelay="500"
-            [ngClass]="getStyle(column.transform!(getPropertyValue(row, column.attr ?? column.name)), column.extra?.styles)">
+            [ngClass]="getStyle(column.transform!(row), column.extra?.styles)">
             @if (column.extra?.labels) {
             <ng-container
-              *ngIf="column.extra?.labels[column.transform!(getPropertyValue(row, column.attr ?? column.name))]">
-              {{ column.extra?.labels[column.transform!(getPropertyValue(row, column.attr ?? column.name))] }}
+              *ngIf="column.extra?.labels[column.transform!(row)]">
+              {{ column.extra?.labels[column.transform!(row)] }}
             </ng-container>
             } @else {
-            {{ column.transform!(getPropertyValue(row, column.attr ?? column.name)) }}
+            {{ column.transform!(row) }}
             }
           </span>
           }
@@ -200,16 +200,16 @@
             }
             @case (TypeColumn.TRANSFORMTEXT) {
             <span class="text-column-style"
-              matTooltip="{{ column.extra?.labels ? column.extra?.labels[column.transform!(getPropertyValue(row, column.attr ?? column.name))] ?? column.transform!(getPropertyValue(row, column.attr ?? column.name)) : column.transform!(getPropertyValue(row, column.attr ?? column.name)) }}"
+              matTooltip="{{ column.extra?.labels ? column.extra?.labels[column.transform!(row)] ?? column.transform!(row) : column.transform!(row) }}"
               matTooltipShowDelay="500"
-              [ngClass]="getStyle(column.transform!(getPropertyValue(row, column.attr ?? column.name)), column.extra?.styles)">
+              [ngClass]="getStyle(column.transform!(row), column.extra?.styles)">
               @if (column.extra?.labels) {
               <ng-container
-                *ngIf="column.extra?.labels[column.transform!(getPropertyValue(row, column.attr ?? column.name))]">
-                {{ column.extra?.labels[column.transform!(getPropertyValue(row, column.attr ?? column.name))] }}
+                *ngIf="column.extra?.labels[column.transform!(row)]">
+                {{ column.extra?.labels[column.transform!(row)] }}
               </ng-container>
               } @else {
-              {{ column.transform!(getPropertyValue(row, column.attr ?? column.name)) }}
+              {{ column.transform!(row) }}
               }
             </span>
             }

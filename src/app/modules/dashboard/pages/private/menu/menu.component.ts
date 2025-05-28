@@ -51,6 +51,18 @@ export class MenuComponent implements OnInit {
           display: true
         },
         {
+          name: 'calorieRange',
+          label: 'Faixa Calórica',
+          type: TypeColumn.TRANSFORMTEXT,
+          sortable: false,
+          display: true,
+          transform: (row: Menu) => {
+            const min = row.minCalories || 0;
+            const max = row.maxCalories || 0;
+            return `${min} kcal - ${max} kcal`;
+          }
+        },
+        {
           name: 'status',
           label: 'Status',
           type: TypeColumn.ENUM,
@@ -79,7 +91,15 @@ export class MenuComponent implements OnInit {
               icon: 'pdf',
               handler: (action: string, row: Menu) => {
                 console.log('Baixando PDF:', row.pdfUrl);
-                window.open(row.pdfUrl, '_blank');
+                const link = document.createElement('a');
+                link.href = row.pdfUrl;
+                link.download = `cardapio-${row.name || 'menu'}.pdf`;
+                link.target = '_blank';
+                link.rel = 'noopener noreferrer';
+                link.style.display = 'none';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
               },
               tooltip: 'Baixar PDF do cardápio'
             }
@@ -93,7 +113,7 @@ export class MenuComponent implements OnInit {
           display: true,
           events: [
             { name: 'EDIT', icon: 'edit', handler: (ctx: string, item: Menu) => this.edit(item.id), tooltip: 'Editar' },
-            { name: 'DELETE', icon: 'delete', handler: (ctx: string, item: Menu) => this.delete(item.id), tooltip: 'Deletar' },
+            // { name: 'DELETE', icon: 'delete', handler: (ctx: string, item: Menu) => this.delete(item.id), tooltip: 'Deletar' },
           ]
         }
       ],
@@ -148,24 +168,13 @@ export class MenuComponent implements OnInit {
   private async openDetailsModal(action: 'create' | 'edit', id?: number) {
     console.log(`Abrindo modal de ${action} para o cardápio com ID:`, id);
 
-    let menuData = null;
-    if (id && action === 'edit') {
-      try {
-        const response = await this.menuService.getById(id);
-        menuData = response.data || response; // Handle different response formats
-      } catch (error) {
-        console.error('Erro ao carregar dados do cardápio:', error);
-      }
-    }
-
     const ref = this.dialog.open(MenuModalComponent, {
       panelClass: 'custom-dialog-container',
       backdropClass: 'custom-backdrop',
       hasBackdrop: true,
       disableClose: false,
       data: {
-        id: id ?? -1,
-        menu: menuData
+        id: id ?? -1
       },
     });
 
