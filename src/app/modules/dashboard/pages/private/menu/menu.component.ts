@@ -88,6 +88,11 @@ export class MenuComponent implements OnInit {
     this.datatableSettings = {
       source: 'menu',
       mockData: this.mockData,
+      titleConfiguration: {
+        title: 'Gestão de Cardápios',
+        singularLabel: 'cardápio',
+        pluralLabel: 'cardápios'
+      },
       columns: [
         {
           name: 'nomeCardapio',
@@ -210,6 +215,11 @@ export class MenuComponent implements OnInit {
       const index = this.mockData.findIndex(item => item.id === row.id);
       if (index > -1) {
         this.mockData.splice(index, 1);
+        // Update the settings with new data
+        this.datatableSettings = {
+          ...this.datatableSettings,
+          mockData: this.mockData
+        };
         this.forceUpdate$.next(Date.now());
       }
     }

@@ -68,6 +68,7 @@ export class DatatableComponent<T> implements OnInit, AfterViewInit, OnDestroy {
   isMobile: boolean = false;
   mobileColsIndices: number[] = [];
   displayedCols: string[] = [];
+  totalCount: number = 0; // Add this property
 
   @Input() settings!: DataTableSettings;
 
@@ -202,6 +203,9 @@ export class DatatableComponent<T> implements OnInit, AfterViewInit, OnDestroy {
         );
       }
 
+      // Set total count for filtered data
+      this.totalCount = filteredData.length;
+
       // Apply sorting if configured
       if (sort && sort.active && sort.direction) {
         filteredData.sort((a, b) => {
@@ -284,6 +288,7 @@ export class DatatableComponent<T> implements OnInit, AfterViewInit, OnDestroy {
         next: (res) => {
           if (res) {
             this.datasource.data = (res as any).data.data as T[];
+            this.totalCount = (res as any).data.count; // Set total count from service response
 
             if (this.paginator && this.settings.paginationConfiguration) {
               this.paginator.length = (res as any).data.count;
@@ -295,6 +300,7 @@ export class DatatableComponent<T> implements OnInit, AfterViewInit, OnDestroy {
         error: (err) => {
           console.error(err);
           this.datasource.data = [];
+          this.totalCount = 0; // Reset total count on error
           if (this.paginator) this.paginator.length = 0;
           this.isLoading = false;
           this.cdr.markForCheck();
@@ -302,6 +308,7 @@ export class DatatableComponent<T> implements OnInit, AfterViewInit, OnDestroy {
       });
     } catch (error) {
       console.error(error);
+      this.totalCount = 0; // Reset total count on error
       this.isLoading = false;
       this.cdr.markForCheck();
     }
@@ -444,7 +451,8 @@ export interface DataTableSettings {
   sortConfiguration?: SortConfiguration;
   filterConfiguration?: FilterConfiguration;
   mobileConfiguration?: MobileConfiguration;
-  mockData?: any[]; // Add this property
+  mockData?: any[];
+  titleConfiguration?: TitleConfiguration; // Add this property
 
   forceUpdate$?: BehaviorSubject<number>;
 
@@ -491,6 +499,12 @@ interface Event {
   handler: Function;
   hideIf?: (row: any) => boolean;
   tooltip: string;
+}
+
+interface TitleConfiguration {
+  title: string;
+  singularLabel: string;
+  pluralLabel: string;
 }
 
 export enum TypeColumn {
