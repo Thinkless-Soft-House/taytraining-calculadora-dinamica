@@ -1,14 +1,28 @@
 <div class="login-container">
   <div class="login-box">
-    <h2>Login</h2>
+    <div class="logo-section">
+        <img src="images/logo-taytraining.png" alt="Lock Icon" />
+    </div>
+
+    <h3 class="main-title">Admin Login</h3>
+    <p class="subtitle">Acesse o painel administrativo</p>
+
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-      <div class="form-group">
-        <input type="email" formControlName="email" placeholder="Email" />
-      </div>
-      <div class="form-group">
-        <input type="password" formControlName="password" placeholder="Senha" />
-      </div>
-      <button type="submit" [disabled]="!loginForm.valid">Entrar</button>
+      <mat-label>Email</mat-label>
+      <mat-form-field appearance="outline" class="form-field short-input">
+        <mat-icon matPrefix>person</mat-icon>
+        <input matInput type="email" formControlName="email" placeholder="admin@taytraining.com" />
+      </mat-form-field>
+
+      <mat-label>Senha</mat-label>
+      <mat-form-field appearance="outline" class="form-field short-input">
+        <mat-icon matPrefix>lock</mat-icon>
+        <input matInput type="password" formControlName="password" placeholder="********" />
+      </mat-form-field>
+
+      <button mat-raised-button color="primary" type="submit" [disabled]="!loginForm.valid" class="login-button">
+        Entrar
+      </button>
     </form>
   </div>
 </div>
