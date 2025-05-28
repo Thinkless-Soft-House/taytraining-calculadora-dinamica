@@ -41,8 +41,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
   @ViewChild('drawer') drawer!: MatDrawer;
 
   constructor(
-    private cdr: ChangeDetectorRef,
-    private renderer: Renderer2
   ) { }
 
   router = inject(Router);
@@ -52,5 +50,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+  }
+
+  isLoginRoute(): boolean {
+    return this.router.url.includes('/login');
   }
 }

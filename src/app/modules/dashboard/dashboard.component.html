@@ -1,6 +1,7 @@
 <div class="dashboard-container">
   <app-header></app-header>
-  <div class="content-wrapper">
+  <div class="content-wrapper" *ngIf="!isLoginRoute()">
     <router-outlet></router-outlet>
   </div>
+  <router-outlet *ngIf="isLoginRoute()"></router-outlet>
 </div>
