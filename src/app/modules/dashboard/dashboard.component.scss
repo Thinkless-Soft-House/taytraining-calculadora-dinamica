@@ -1,0 +1,140 @@
+:host {
+    display: block;
+    min-height: 100vh;
+    overflow: hidden;
+  }
+
+  .drawer-container {
+    overflow: hidden;
+    min-height: calc(100vh - 64px);
+    height: calc(100vh - 64px);
+
+    .sidenav {
+      background-color: #f5f5f5;
+      border-radius: 0px;
+      width: 87px; // Fixed width for desktop
+
+      // Remove transitions only for desktop
+      @media (min-width: 768px) {
+        transition: none;
+      }
+
+      // Keep transitions for mobile
+      @media (max-width: 767px) {
+        transition: width 0.3s ease;
+
+        &:hover {
+          width: 230px;
+        }
+      }
+    }
+
+    .content {
+      min-height: 100vh;
+      margin-left: 0;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidenav-content {
+      overflow-x: hidden;
+    }
+
+    .container {
+      box-sizing: border-box;
+      overflow-x: hidden;
+      max-width: calc(100vw - 87px - 20px); // Fixed calculation based on sidenav width
+    }
+
+    // Fixed margin for desktop, transition for mobile
+    ::ng-deep .mat-drawer-content {
+      @media (min-width: 768px) {
+        margin-left: 87px !important; // Fixed margin for desktop
+        transition: none;
+      }
+
+      @media (max-width: 767px) {
+        transition: margin-left 0.3s ease; // Keep transition for mobile
+      }
+
+      // Center content within available space
+      .content-wrapper {
+        max-width: 1200px; // Define max-width for large screens
+        margin: 0 auto; // Center horizontally
+        padding: 0 16px; // Add some padding
+        width: 100%;
+      }
+    }
+  }
+
+  .content.no-drawer {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .menu-toggle-btn {
+    margin-right: 8px;
+    color: #2c2c2c;
+  }
+
+  @media screen and (max-width: 767px) {
+    .drawer-container {
+      height: calc(100vh - 64px);
+    }
+
+    .content {
+      margin-left: 0;
+      width: 100%;
+    }
+
+    .menu-toggle-btn {
+      display: block;
+    }
+
+    // Mobile drawer styling (original behavior)
+    .mat-drawer {
+      max-width: 80vw;
+      background-color: #f5f5f5 !important;
+      z-index: 1000 !important;
+
+      // Allow transitions in mobile mode
+      transition: width 0.3s ease;
+    }
+
+    // Make sure drawer content is always visible in mobile view
+    .sidenav {
+      .collapsed-item,
+      .expanded-item {
+        display: block !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+      }
+    }
+
+    // Ensure sidenav is properly positioned
+    .mat-drawer-container, .mat-drawer-content {
+      overflow: visible !important;
+    }
+
+    // Ensure no margin on mobile when drawer is closed
+    ::ng-deep .mat-drawer-content {
+      margin-left: 0 !important;
+    }
+  }
+
+  @media screen and (min-width: 768px) {
+    .menu-toggle-btn {
+      display: none;
+    }
+  }
+
+  .header-actions {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }

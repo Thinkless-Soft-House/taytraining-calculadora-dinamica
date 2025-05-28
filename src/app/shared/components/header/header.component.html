@@ -1,0 +1,19 @@
+<header class="header" *ngIf="isLoggedIn">
+  <div class="header-content">
+    <div class="logo">
+      <div class="logo-image-container">
+        <img src="images/settings.svg" alt="Settings" class="logo-image">
+      </div>
+      <div class="logo-text">
+        <h1>Painel Administrativo</h1>
+        <p class="logo-description">Tay Training - Calculadora Calórica</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <div class="button-logout" (click)="logout()" title="Deslogar">
+        <mat-icon>logout</mat-icon>
+        <p>Sair</p>
+      </div>
+    </div>
+  </div>
+</header>
