@@ -48,7 +48,7 @@ export class LoginComponent implements OnInit {
             horizontalPosition: 'right',
             verticalPosition: 'top'
           });
-          this.router.navigate(['/app/menu']);
+          this.router.navigate(['/admin']);
         },
         error: (error) => {
           // this.isLoading = false;

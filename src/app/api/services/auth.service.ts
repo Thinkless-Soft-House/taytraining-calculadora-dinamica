@@ -43,7 +43,7 @@ export class AuthService {
 
   logout(): void {
     localStorage.removeItem('accessToken');
-    this.router.navigate(['/app/login']);
+    this.router.navigate(['/admin/login']);
   }
 
 

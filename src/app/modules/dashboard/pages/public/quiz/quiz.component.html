@@ -1,0 +1,173 @@
+<div class="quiz-container">
+  <div class="quiz-header">
+    <h1>
+      <span class="quiz-word">Quiz</span>
+      <span class="nutricional-word">Nutricional</span>
+    </h1>
+    <div class="step-indicator">
+      <p>Etapa {{ currentStep }} de {{ totalSteps }}</p>
+      <div class="progress-bar">
+        <div class="progress-fill" [style.width.%]="(currentStep / totalSteps) * 100"></div>
+      </div>
+    </div>
+  </div>
+
+  <mat-stepper #stepper orientation="horizontal" linear (selectionChange)="onStepChange($event)">
+    <!-- Step 1: Goal Selection -->
+    <mat-step [stepControl]="step1Form">
+      <form [formGroup]="step1Form">
+        <h2>Qual seu objetivo?</h2>
+        <div class="cards-container">
+          <div *ngFor="let goal of goalOptions; let i = index" class="goal-card"
+            [class.selected]="step1Form.get('goal')?.value === goal.id" (click)="selectGoal(goal.id)">
+            <ng-container *ngIf="goal.id === 'fat-loss'; else otherGoal">
+              <svg class="target-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <circle cx="12" cy="12" r="6"></circle>
+                <circle cx="12" cy="12" r="2"></circle>
+              </svg>
+            </ng-container>
+            <ng-template #otherGoal>
+              <ng-container *ngIf="goal.id === 'muscle-gain'; else maintainWeight">
+                <svg class="trending-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
+                  <polyline points="16 7 22 7 22 13"></polyline>
+                </svg>
+              </ng-container>
+              <ng-template #maintainWeight>
+                <svg class="activity-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path
+                    d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2">
+                  </path>
+                </svg>
+              </ng-template>
+            </ng-template>
+            <div>
+              <h3>{{ goal.title }}</h3>
+              <p>{{ goal.description }}</p>
+            </div>
+          </div>
+        </div>
+        <div class="step-actions">
+          <button mat-button matStepperPrevious>
+            <svg class="chevron-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
+            Anterior
+          </button>
+          <button mat-raised-button color="primary" matStepperNext [disabled]="!step1Form.valid">
+            Próximo
+            <svg class="chevron-icon" fill="none" viewBox="0 0 24 24">
+              <path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg>
+          </button>
+        </div>
+      </form>
+    </mat-step>
+
+    <!-- Step 2: Personal Data -->
+    <mat-step [stepControl]="step2Form">
+      <form [formGroup]="step2Form">
+        <h2>Informe seus dados</h2>
+        <div class="form-grid">
+          <div class="form-group-step2">
+            <div class="form-container">
+              <label class="custom-label">Idade</label>
+              <mat-form-field appearance="outline" class="short-input">
+                <input matInput type="number" formControlName="age" placeholder="Ex: 25" (blur)="onStep2Change()">
+                <mat-error *ngIf="step2Form.get('age')?.hasError('required')">
+                  Campo obrigatório
+                </mat-error>
+              </mat-form-field>
+            </div>
+            <div class="form-container">
+              <label class="custom-label">Altura (cm)</label>
+              <mat-form-field appearance="outline" class="short-input">
+                <input matInput type="number" formControlName="height" placeholder="Ex: 175" (blur)="onStep2Change()">
+                <mat-error *ngIf="step2Form.get('height')?.hasError('required')">
+                  Campo obrigatório
+                </mat-error>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <div class="form-group-step2">
+            <div class="form-container">
+              <label class="custom-label">Peso (kg)</label>
+              <mat-form-field appearance="outline" class="short-input">
+                <input matInput type="number" formControlName="weight" placeholder="Ex: 70" (blur)="onStep2Change()">
+                <mat-error *ngIf="step2Form.get('weight')?.hasError('required')">
+                  Campo obrigatório
+                </mat-error>
+              </mat-form-field>
+            </div>
+            <div class="form-container">
+              <label class="custom-label">% de Gordura</label>
+              <mat-form-field appearance="outline" class="short-input">
+                <input matInput type="number" formControlName="bodyFatPercentage" placeholder="Ex: 15"
+                  (blur)="onStep2Change()">
+                <mat-error *ngIf="step2Form.get('bodyFatPercentage')?.hasError('required')">
+                  Campo obrigatório
+                </mat-error>
+              </mat-form-field>
+            </div>
+          </div>
+        </div>
+        <div class="step-actions">
+          <button mat-button matStepperPrevious>
+            <svg class="chevron-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
+            Anterior
+          </button>
+          <button mat-raised-button color="primary" matStepperNext [disabled]="!step2Form.valid">
+            Próximo
+            <svg class="chevron-icon" fill="none" viewBox="0 0 24 24">
+              <path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg>
+          </button>
+        </div>
+      </form>
+    </mat-step>
+
+    <!-- Step 3: Activity Level -->
+    <mat-step [stepControl]="step3Form">
+      <form [formGroup]="step3Form">
+        <h2>Selecione o seu nível de atividade:</h2>
+        <div class="cards-container activity-cards">
+          <div *ngFor="let level of activityLevels" class="activity-card"
+            [class.selected]="step3Form.get('activityLevel')?.value === level.id"
+            (click)="selectActivityLevel(level.id)">
+            <div>
+              <h3>{{ level.title }}</h3>
+              <p>{{ level.description }}</p>
+            </div>
+          </div>
+        </div>
+        <div class="step-actions">
+          <button mat-button matStepperPrevious>
+            <svg class="chevron-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
+            Anterior
+          </button>
+          <button mat-raised-button color="primary" (click)="onQuizComplete()" [disabled]="!step3Form.valid">
+            Finalizar
+            <svg class="chevron-icon" fill="none" viewBox="0 0 24 24">
+              <path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg>
+          </button>
+        </div>
+      </form>
+    </mat-step>
+  </mat-stepper>
+</div>

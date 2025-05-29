@@ -147,3 +147,25 @@ input[type="number"] {
     margin: 0;
   }
 }
+
+// Customização global do mat-card
+mat-card {
+  background: #ffffff !important;
+  border-radius: 20px !important;
+  box-shadow:
+    0 8px 32px 0 rgba(16, 30, 54, 0.14),
+    0 2px 8px 0 rgba(16, 30, 54, 0.10),
+    0 1.5px 8px 0 rgba(245, 42, 138, 0.05) !important;
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 auto !important;
+  max-width: 520px;
+  width: 100%;
+}
+
+// Opcional: remover padding extra do mat-card-content globalmente
+mat-card-content {
+  padding: 0 !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+}
