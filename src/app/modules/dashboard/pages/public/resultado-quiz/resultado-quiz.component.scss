@@ -1,0 +1,330 @@
+.resultado-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 16px;
+  margin: 0 auto;
+  text-align: center;
+  max-width: 865px;
+  width: 100%;
+}
+.check-icon {
+  background: #ffe6f3;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  margin: 0 auto 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  color: #ff3b8a;
+}
+h1 {
+  font-size: 36px;
+  font-weight: 700;
+  margin: 12px;
+}
+.highlight {
+  color: #ff3b8a;
+}
+.subtitle {
+  max-width: 650px;
+  font-size: 20px;
+  color: #4b5563;
+  margin: 0 auto 24px auto;
+}
+.cardapio-card {
+  background: #fff;
+  box-shadow: 0 1px 8px #0001;
+  margin-bottom: 16px;
+}
+
+.cardapio-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  flex-direction: column;
+  background: linear-gradient(
+    135deg,
+    rgba(245, 42, 138, 0.063),
+    rgb(255, 255, 255)
+  );
+  padding: 24px;
+  position: relative;
+}
+
+.cardapio-title-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.cardapio-heading {
+  font-size: 30px;
+  color: #1f2937;
+  font-weight: 700;
+  margin: 0;
+  text-align: center;
+}
+
+.target-icon {
+  display: flex;
+  align-items: center;
+}
+.recomendado-label {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  background: #f52a8a;
+  color: white;
+  border-radius: 999px;
+  padding: 4px 16px;
+  font-size: 0.95em;
+  margin: 8px auto 0 auto;
+  width: 93%;
+  height: 30px;
+  font-weight: 600;
+  position: static;
+}
+.steps {
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  padding: 32px;
+}
+.steps-heading {
+  font-size: 20px;
+  color: #1f2937;
+  font-weight: 700;
+  margin: 0;
+}
+.step {
+  flex: 1 1 30%;
+  background: #f3f6fb;
+  border-radius: 10px;
+  padding: 12px 8px;
+  text-align: center; // centraliza texto e conteúdo
+  min-width: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center; // centraliza filhos verticalmente
+  justify-content: center;
+}
+.step1 {
+  background: #eaf1fb;
+}
+.step2 {
+  background: #eafbf0;
+}
+.step3 {
+  background: #fbeaf0;
+}
+.circle {
+  width: 48px;
+  height: 48px;
+  background: #e0e7ef;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  margin-bottom: 12px;
+  font-size: 20px;
+}
+
+.step1 .circle {
+  background: #c7d8f7;
+  color: rgb(37, 99, 235); // blue-600
+}
+.step2 .circle {
+  background: #b8f7d0;
+  color: rgb(22, 163, 74); // green-600
+}
+.step3 .circle {
+  background: #f7c7d8;
+  color: rgb(245, 42, 138); // pink
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 12px;
+  padding-bottom: 32px;
+}
+.btn-download {
+  background: #ff3b8a;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background 0.2s;
+}
+.btn-download:hover {
+  background: #e12c74;
+}
+.btn-refazer {
+  background: #fff;
+  color: #ff3b8a;
+  border: 1px solid #ff3b8a;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background 0.2s, color 0.2s;
+}
+.btn-refazer:hover {
+  background: #ffe6f3;
+}
+.footer-note {
+  margin-top: 18px;
+  color: #4b5563;
+  font-size: 1em;
+}
+
+@media (max-width: 600px) {
+  .resultado-container {
+    padding: 24px 4px;
+    margin: 0 0;
+  }
+
+  h1 {
+    font-size: 26px;
+    margin: 12px 0;
+  }
+
+  .subtitle {
+    font-size: 17px;
+    max-width: 98vw;
+    margin: 0 auto 18px auto;
+  }
+
+  .check-icon {
+    width: 56px;
+    height: 56px;
+  }
+
+  .cardapio-card {
+    padding: 12px 4px;
+    margin-bottom: 12px;
+  }
+
+  .cardapio-title-row {
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .cardapio-heading {
+    font-size: 20px;
+  }
+
+  .recomendado-label {
+    font-size: 14px;
+    padding: 3px 10px;
+    width: 90%;
+    height: 26px;
+    margin-top: 6px;
+  }
+
+  .steps {
+    flex-direction: column;
+    gap: 8px;
+    padding: 32px;
+    margin-bottom: 0;
+    align-items: center;
+    text-align: center;
+  }
+
+  .steps-heading {
+    font-size: 18px;
+    text-align: left;
+    width: 100%;
+    margin-left: 0;
+    margin-right: auto;
+    display: block;
+  }
+
+  .steps {
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .steps-cards {
+    flex-direction: column !important;
+    gap: 10px !important;
+    margin-top: 0 !important;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .step {
+    min-width: unset;
+    padding: 10px 4px;
+    font-size: 15px;
+    text-align: center; // garante centralização no mobile
+    align-items: center;
+    justify-content: center;
+  }
+
+  .step > div {
+    width: 100%;
+  }
+
+  .step b, .step p {
+    text-align: center;
+    width: 100%;
+    display: block;
+  }
+
+  .actions {
+    flex-direction: column;
+    gap: 8px;
+    padding: 0 32px 32px 32px;
+    width: 83%;
+  }
+
+  .btn-download,
+  .btn-refazer {
+    width: 100%;
+    padding: 12px 0;
+    font-size: 1em;
+  }
+
+  .footer-note {
+    font-size: 1em;
+    margin-top: 14px;
+  }
+
+  .circle {
+    width: 48px !important;
+    height: 48px !important;
+    min-width: 48px !important;
+    min-height: 48px !important;
+    max-width: 48px !important;
+    max-height: 48px !important;
+    border-radius: 50% !important;
+    padding: 0 !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    margin-bottom: 12px;
+    font-size: 20px;
+    box-sizing: border-box;
+  }
+}

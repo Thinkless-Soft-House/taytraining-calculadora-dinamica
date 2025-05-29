@@ -13,6 +13,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 
 import { QuizStoreService } from './quiz.store';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-quiz',
@@ -76,7 +77,8 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   constructor(
     private fb: FormBuilder,
-    private quizStore: QuizStoreService
+    private quizStore: QuizStoreService,
+    private router: Router
   ) {
     this.step1Form = this.fb.group({
       goal: ['', Validators.required]
@@ -221,6 +223,8 @@ export class QuizComponent implements OnInit, OnDestroy {
         ...this.quizStore.getCurrentData(),
         gastoEnergeticoTotal: Math.round(gastoEnergeticoTotal)
       });
+
+      this.router.navigate(['/resultado-quiz']);
     }
   }
 

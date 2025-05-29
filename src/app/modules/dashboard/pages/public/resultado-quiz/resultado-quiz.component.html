@@ -1,0 +1,75 @@
+<div class="resultado-container">
+  <div class="check-icon">
+    <!-- SVG substituindo o emoji -->
+    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-check-big w-10 h-10"
+      style="color: rgb(245, 42, 138);">
+      <path d="M21.801 10A10 10 0 1 1 17 3.335"></path>
+      <path d="m9 11 3 3L22 4"></path>
+    </svg>
+  </div>
+  <h1>
+    Perfeito! Encontramos seu <span class="highlight">Cardápio Ideal</span>
+  </h1>
+  <p class="subtitle">
+    Com base nas suas respostas, selecionamos o plano alimentar perfeito para ganho de massa muscular
+  </p>
+  <div class="cardapio-card">
+    <div class="cardapio-title" style="flex-direction: column;">
+      <div class="cardapio-title-row">
+        <span class="target-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+            class="lucide lucide-target" style="color: rgb(245, 42, 138);">
+            <circle cx="12" cy="12" r="10"></circle>
+            <circle cx="12" cy="12" r="6"></circle>
+            <circle cx="12" cy="12" r="2"></circle>
+          </svg>
+        </span>
+        <h3 class="cardapio-heading">Cardápio para Ganho de Massa</h3>
+      </div>
+      <div class="recomendado-label">Recomendado para você</div>
+    </div>
+    <div class="steps">
+      <div style="display: flex; align-items: center; gap: 0.5rem; justify-content: flex-start;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+          class="lucide lucide-trending-up w-5 h-5 mr-2" style="color: rgb(245, 42, 138);">
+          <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
+          <polyline points="16 7 22 7 22 13"></polyline>
+        </svg>
+        <h3 class="steps-heading">Seus próximos passos</h3>
+      </div>
+      <div class="steps-cards" style="display: flex; gap: 1rem; margin-top: 1rem;">
+        <div class="step step1 step-card">
+          <div class="circle">1</div>
+          <div>
+            <b>Baixe seu cardápio</b>
+            <p>Acesse o PDF completo com todas as refeições detalhadas</p>
+          </div>
+        </div>
+        <div class="step step2 step-card">
+          <div class="circle">2</div>
+          <div>
+            <b>Siga o plano</b>
+            <p>Implemente gradualmente as mudanças alimentares</p>
+          </div>
+        </div>
+        <div class="step step3 step-card">
+          <div class="circle">3</div>
+          <div>
+            <b>Monitore resultados</b>
+            <p>Acompanhe sua evolução e faça ajustes necessários</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn-download" (click)="baixarPdf()">📄 Baixar Cardápio Completo</button>
+      <button class="btn-refazer" (click)="refazerQuiz()">← Refazer Quiz</button>
+    </div>
+  </div>
+  <div class="footer-note">
+    Lembre-se: a consistência é a chave para o sucesso! <span>🎉</span>
+  </div>
+</div>
