@@ -20,6 +20,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { Menu, MenuStatus } from '../../../../../../api/model/menu.model';
 import { MenuService } from '../../../../../../api/services/menu.service';
 
@@ -39,6 +40,7 @@ import { MenuService } from '../../../../../../api/services/menu.service';
     MatProgressSpinnerModule,
     MatSlideToggleModule,
     MatSnackBarModule,
+    MatTooltipModule,
   ],
   templateUrl: './menu-modal.component.html',
   styleUrl: './menu-modal.component.scss',
@@ -58,9 +60,14 @@ export class MenuModalComponent implements OnInit {
     name: new FormControl('', [Validators.required, Validators.maxLength(100)]),
     caloriasMinimas: new FormControl('', [Validators.required]),
     caloriasMaximas: new FormControl('', [Validators.required]),
-    pdfUrl: new FormControl('', [Validators.required]),
+    pdfUrl: new FormControl('', [
+      Validators.required,
+      Validators.pattern(/^https?:\/\/[\w.-]+(\/[\w\-./?%&=]*)?$/)
+    ]),
     ativo: new FormControl(true, [Validators.required]),
   });
+
+  isCaloriesInvalid: boolean = false;
 
   constructor(
     public dialogRef: MatDialogRef<MenuModalComponent>,
@@ -71,11 +78,50 @@ export class MenuModalComponent implements OnInit {
   ) { }
 
   async ngOnInit(): Promise<void> {
-    try {
-      await this.initializeMenuData();
-    } catch (error) {
-      console.error('Error initializing menu data:', error);
+    // Adiciona listener para validação customizada
+    this.form.valueChanges.subscribe(() => {
+      this.checkCaloriesValidity();
+    });
+    return (async () => {
+      try {
+        await this.initializeMenuData();
+      } catch (error) {
+        console.error('Error initializing menu data:', error);
+      }
+    })();
+  }
+
+  private checkCaloriesValidity() {
+    const min = this.form.get('caloriasMinimas')?.value;
+    const max = this.form.get('caloriasMaximas')?.value;
+    this.isCaloriesInvalid =
+      min !== null && max !== null && min !== '' && max !== '' && Number(min) > Number(max);
+  }
+
+  getSaveButtonTooltip(): string {
+    if (this.isCaloriesInvalid) {
+      return 'Calorias mínimas não pode ser maior que calorias máximas.';
     }
+    if (this.form.invalid) {
+      const errors: string[] = [];
+      const controls = this.form.controls;
+      if (controls['name'].invalid) {
+        if (controls['name'].errors?.['required']) errors.push('Nome é obrigatório.');
+        if (controls['name'].errors?.['maxlength']) errors.push('Nome muito longo.');
+      }
+      if (controls['caloriasMinimas'].invalid) {
+        errors.push('Calorias mínimas é obrigatório.');
+      }
+      if (controls['caloriasMaximas'].invalid) {
+        errors.push('Calorias máximas é obrigatório.');
+      }
+      if (controls['pdfUrl'].invalid) {
+        if (controls['pdfUrl'].errors?.['required']) errors.push('URL do PDF é obrigatório.');
+        if (controls['pdfUrl'].errors?.['pattern']) errors.push('URL do PDF inválida.');
+      }
+      return errors.join(' ');
+    }
+    return '';
   }
 
   private async initializeMenuData(): Promise<void> {
@@ -116,7 +162,7 @@ export class MenuModalComponent implements OnInit {
   }
 
   async saveMenu() {
-    if (this.form.invalid || this.isSaving) {
+    if (this.form.invalid || this.isCaloriesInvalid || this.isSaving) {
       return;
     }
 

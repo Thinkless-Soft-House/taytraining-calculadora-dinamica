@@ -64,13 +64,23 @@
     <button mat-button class="btn-cancel" (click)="dialogRef.close()">
       Cancelar
     </button>
-    <button mat-flat-button color="primary" class="btn-save" [disabled]="!form.valid || isSaving || isLoadingData" (click)="saveMenu()">
-      <div class="button-content">
-        <mat-spinner *ngIf="isSaving" diameter="20" class="loading-spinner"></mat-spinner>
-        <span>
-          {{ isSaving ? "Salvando..." : (data.id === -1 ? "Criar cardápio" : "Salvar alterações") }}
-        </span>
-      </div>
-    </button>
+    <span
+      [matTooltip]="getSaveButtonTooltip()"
+      [matTooltipDisabled]="form.valid && !isCaloriesInvalid"
+      matTooltipPosition="above"
+      matTooltipShowDelay="200"
+    >
+      <button mat-flat-button color="primary" class="btn-save"
+        [disabled]="!form.valid || isCaloriesInvalid || isSaving || isLoadingData"
+        (click)="saveMenu()"
+      >
+        <div class="button-content">
+          <mat-spinner *ngIf="isSaving" diameter="20" class="loading-spinner"></mat-spinner>
+          <span>
+            {{ isSaving ? "Salvando..." : (data.id === -1 ? "Criar cardápio" : "Salvar alterações") }}
+          </span>
+        </div>
+      </button>
+    </span>
   </div>
 </div>
