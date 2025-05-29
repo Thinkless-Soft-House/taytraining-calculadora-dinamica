@@ -222,13 +222,19 @@ export class QuizComponent implements OnInit, OnDestroy {
       const calorias = Math.round(gastoEnergeticoTotal);
       try {
         const menu: any = await firstValueFrom(
-          this.menuService.http.get(`${this.menuService.path}/find-by-calories/${calorias}`)
+          this.menuService.findByCalories(calorias)
         );
         const pdfUrl = menu?.pdfUrl || null;
         this.quizStore.updateMenuPdfUrl(pdfUrl);
         this.router.navigate(['/resultado-quiz']);
-      } catch (error) {
-        alert('Não foi possível encontrar um cardápio para sua faixa calórica.');
+      } catch (error: any) {
+        // Se for erro 404, buscar o mais próximo
+        if (error?.status === 404) {
+          console.warn('Menu não encontrado para as calorias:', calorias);
+          this.router.navigate(['/resultado-quiz']);
+        } else {
+          alert('Não foi possível encontrar um cardápio para sua faixa calórica.');
+        }
       }
     }
   }

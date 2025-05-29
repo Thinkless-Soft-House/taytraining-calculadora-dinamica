@@ -9,4 +9,8 @@ export class MenuService extends BaseModelService {
   constructor(http: HttpClient) {
     super('/menu-calculator', http);
   }
+
+  findByCalories(calorias: number) {
+    return this.http.get(`${this.path}/find-by-calories/${calorias}`);
+  }
 }
