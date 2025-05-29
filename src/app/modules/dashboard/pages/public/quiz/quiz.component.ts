@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Subject } from 'rxjs';
+import { Subject, firstValueFrom } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 // Angular Material imports
@@ -14,6 +14,7 @@ import { MatIconModule } from '@angular/material/icon';
 
 import { QuizStoreService } from './quiz.store';
 import { Router } from '@angular/router';
+import { MenuService } from '../../../../../api/services/menu.service';
 
 @Component({
   selector: 'app-quiz',
@@ -78,7 +79,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   constructor(
     private fb: FormBuilder,
     private quizStore: QuizStoreService,
-    private router: Router
+    private router: Router,
+    private menuService: MenuService // ADICIONADO
   ) {
     this.step1Form = this.fb.group({
       goal: ['', Validators.required]
@@ -140,9 +142,8 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.onStep3Change();
   }
 
-  onQuizComplete(): void {
+  async onQuizComplete(): Promise<void> {
     if (this.step1Form.valid && this.step2Form.valid && this.step3Form.valid) {
-      // Obter dados do formulário
       const { age, weight, height, bodyFatPercentage } = this.step2Form.value;
 
       // Tipos auxiliares para faixaSituacao
@@ -218,13 +219,17 @@ export class QuizComponent implements OnInit, OnDestroy {
           ? GEB * (1 + valorGastoEnergetico.val)
           : GEB * (1 - valorGastoEnergetico.val);
 
-      // Exibir resultado no console (ou prossiga conforme necessário)
-      console.log('Quiz completed!', {
-        ...this.quizStore.getCurrentData(),
-        gastoEnergeticoTotal: Math.round(gastoEnergeticoTotal)
-      });
-
-      this.router.navigate(['/resultado-quiz']);
+      const calorias = Math.round(gastoEnergeticoTotal);
+      try {
+        const menu: any = await firstValueFrom(
+          this.menuService.http.get(`${this.menuService.path}/find-by-calories/${calorias}`)
+        );
+        const pdfUrl = menu?.pdfUrl || null;
+        this.quizStore.updateMenuPdfUrl(pdfUrl);
+        this.router.navigate(['/resultado-quiz']);
+      } catch (error) {
+        alert('Não foi possível encontrar um cardápio para sua faixa calórica.');
+      }
     }
   }
 

@@ -12,6 +12,7 @@ export interface QuizData {
   goal: string | null;
   personalData: PersonalData | null;
   activityLevel: string | null;
+  menuPdfUrl?: string | null;
 }
 
 @Injectable({
@@ -21,7 +22,8 @@ export class QuizStoreService {
   private initialData: QuizData = {
     goal: null,
     personalData: null,
-    activityLevel: null
+    activityLevel: null,
+    menuPdfUrl: null
   };
 
   private quizDataSubject = new BehaviorSubject<QuizData>(this.initialData);
@@ -57,6 +59,14 @@ export class QuizStoreService {
     });
   }
 
+  updateMenuPdfUrl(menuPdfUrl: string | null): void {
+    const currentData = this.getCurrentData();
+    this.quizDataSubject.next({
+      ...currentData,
+      menuPdfUrl
+    });
+  }
+
   clearData(): void {
     this.quizDataSubject.next(this.initialData);
   }
@@ -77,5 +87,9 @@ export class QuizStoreService {
 
   getActivityLevel(): string | null {
     return this.getCurrentData().activityLevel;
+  }
+
+  getMenuPdfUrl(): string | null {
+    return this.getCurrentData().menuPdfUrl || null;
   }
 }
