@@ -140,8 +140,87 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   onQuizComplete(): void {
     if (this.step1Form.valid && this.step2Form.valid && this.step3Form.valid) {
-      console.log('Quiz completed!', this.quizStore.getCurrentData());
-      // Navigate to results or process data
+      // Obter dados do formulário
+      const { age, weight, height, bodyFatPercentage } = this.step2Form.value;
+
+      // Tipos auxiliares para faixaSituacao
+      type FaixaItem = { t?: number; b?: number };
+      type FaixaSituacaoType = { [key: number]: FaixaItem[] };
+
+      // Ajustar faixaSituacao para trabalhar com percentual de gordura em porcentagem (0-100)
+      const faixaSituacao: FaixaSituacaoType = {
+        20: [
+          { t: 16 },
+          { b: 16, t: 19 },
+          { b: 20, t: 28 },
+          { b: 29, t: 31 },
+          { b: 31 }
+        ],
+        30: [
+          { t: 16 },
+          { b: 16, t: 19 },
+          { b: 20, t: 28 },
+          { b: 29, t: 31 },
+          { b: 31 }
+        ],
+        40: [
+          { t: 16 },
+          { b: 16, t: 19 },
+          { b: 20, t: 28 },
+          { b: 29, t: 31 },
+          { b: 31 }
+        ],
+        50: [
+          { t: 16 },
+          { b: 16, t: 19 },
+          { b: 20, t: 28 },
+          { b: 29, t: 31 },
+          { b: 31 }
+        ]
+      };
+
+      const gastoEnergetico = [
+        { op: "plus", val: 0.12 },
+        { op: "plus", val: 0.08 },
+        { op: "plus", val: 0 },
+        { op: "minus", val: 0.08 },
+        { op: "minus", val: 0.12 }
+      ];
+
+      // Pegar o index da dezena da idade
+      const dezenaIdade = Math.floor(age / 10) * 10;
+      const faixaCorretasituacao = faixaSituacao[dezenaIdade] || faixaSituacao[50];
+
+      // Encontrar índice do percentual de gordura
+      const percentualGorduraIndex = faixaCorretasituacao.findIndex((item: FaixaItem) => {
+        if (item.t !== undefined && bodyFatPercentage <= item.t) {
+          return true;
+        }
+        if (item.b !== undefined && bodyFatPercentage >= item.b) {
+          return true;
+        }
+        return false;
+      });
+
+      const valorGastoEnergetico = gastoEnergetico[
+        percentualGorduraIndex >= 0 ? percentualGorduraIndex : gastoEnergetico.length - 1
+      ];
+
+      // GEB = 655,1 + (9,56 x P) + (1,85 x E) - (4,68 x I)
+      // P = peso (kg) | E = estatura (cm) | I = idade (anos)
+      const GEB = 655.1 + 9.56 * weight + 1.85 * height - 4.68 * age;
+      const gastoEnergeticoTotal =
+        valorGastoEnergetico.val === 0
+          ? GEB
+          : valorGastoEnergetico.op === "plus"
+          ? GEB * (1 + valorGastoEnergetico.val)
+          : GEB * (1 - valorGastoEnergetico.val);
+
+      // Exibir resultado no console (ou prossiga conforme necessário)
+      console.log('Quiz completed!', {
+        ...this.quizStore.getCurrentData(),
+        gastoEnergeticoTotal: Math.round(gastoEnergeticoTotal)
+      });
     }
   }
 
