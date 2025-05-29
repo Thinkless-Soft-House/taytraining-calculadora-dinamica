@@ -13,6 +13,6 @@ export class HomeQuizComponent {
   startQuiz(): void {
     // Navigate to quiz page or trigger quiz start logic
     console.log('Iniciando quiz...');
-    this.router.navigate(['/dashboard/quiz']);
+    this.router.navigate(['/quiz']);
   }
 }

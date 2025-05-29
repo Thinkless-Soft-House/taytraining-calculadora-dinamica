@@ -348,6 +348,28 @@ mat-error {
     border: 1px solid #ececec;
     // display, align-items e gap já herdados do button acima
   }
+
+  button[mat-raised-button][color="primary"]:disabled,
+  button[mat-raised-button][color="primary"][disabled] {
+    background: #f8bcd9 !important;
+    color: #fff !important;
+    opacity: 0.7;
+    cursor: not-allowed !important;
+    box-shadow: none !important;
+    border: none !important;
+    transition: none;
+  }
+
+  button[mat-button]:disabled,
+  button[mat-button][disabled] {
+    background: #f3f3f3 !important;
+    color: #bdbdbd !important;
+    opacity: 0.7;
+    cursor: not-allowed !important;
+    border: none !important;
+    box-shadow: none !important;
+    transition: none;
+  }
 }
 
 // Remove stepper header
