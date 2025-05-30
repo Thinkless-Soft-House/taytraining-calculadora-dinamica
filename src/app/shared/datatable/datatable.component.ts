@@ -213,6 +213,11 @@ export class DatatableComponent<T> implements OnInit, AfterViewInit, OnDestroy {
 
     const sortActive =
       sort?.active || this.settings.sortConfiguration?.active || '';
+    let sortField = sortActive;
+    // Mapeia a coluna calorieRange para minCalories para ordenação
+    if (sortField === 'calorieRange') {
+      sortField = 'minCalories';
+    }
     const sortDirection =
       sort?.direction || this.settings.sortConfiguration?.direction || '';
 
@@ -222,7 +227,7 @@ export class DatatableComponent<T> implements OnInit, AfterViewInit, OnDestroy {
           ? { page: pageIndex, limit: pageSize }
           : undefined,
         sort: this.settings.sortConfiguration
-          ? { active: sortActive, direction: sortDirection }
+          ? { active: sortField, direction: sortDirection }
           : undefined,
         filter: filters.length > 0
           ? filters

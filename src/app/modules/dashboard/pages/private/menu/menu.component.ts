@@ -1,4 +1,4 @@
-import { Component, type OnInit } from '@angular/core';
+import { Component, type OnInit, ViewChild } from '@angular/core';
 import { DatatableComponent, DataTableSettings, TypeColumn } from '../../../../../shared/datatable/datatable.component';
 import { BehaviorSubject } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
@@ -18,6 +18,8 @@ export class MenuComponent implements OnInit {
   updateTable = new BehaviorSubject<number>(0)
   updateTableCount = 0;
 
+  @ViewChild(DatatableComponent) datatableComponent?: DatatableComponent<Menu>;
+
   constructor(
     private dialog: MatDialog,
     private menuService: MenuService
@@ -29,7 +31,7 @@ export class MenuComponent implements OnInit {
 
   private initializeDatatable(): void {
     this.datatableSettings = {
-      source: '/menu-calculator', // Remove the leading slash
+      source: '/menu-calculator', // Padrão sem filtro
       titleConfiguration: {
         title: 'Gestão de Cardápios',
         singularLabel: 'cardápio',
@@ -47,14 +49,14 @@ export class MenuComponent implements OnInit {
           name: 'description',
           label: 'Descrição',
           type: TypeColumn.LONGSTRING,
-          sortable: true,
+          sortable: false, // Não permite ordenação
           display: true
         },
         {
           name: 'calorieRange',
           label: 'Faixa Calórica',
           type: TypeColumn.TRANSFORMTEXT,
-          sortable: false,
+          sortable: true, // Permite ordenação
           display: true,
           transform: (row: Menu) => {
             const min = row.minCalories || 0;
@@ -66,7 +68,7 @@ export class MenuComponent implements OnInit {
           name: 'status',
           label: 'Status',
           type: TypeColumn.ENUM,
-          sortable: true,
+          sortable: false, // Não permite ordenação
           display: true,
           extra: {
             labels: {
@@ -126,7 +128,7 @@ export class MenuComponent implements OnInit {
         direction: 'asc'
       },
       filterConfiguration: {
-        target: ['name', 'description']
+        target: ['name', 'minCalories'] // Apenas name e minCalories (faixa calórica)
       },
       mobileConfiguration: {
         columnNames: ['name', 'description', 'status', 'actions']
@@ -145,6 +147,24 @@ export class MenuComponent implements OnInit {
       ],
       filters: []
     };
+  }
+
+  // Adicione este método para alterar a source dinamicamente
+  setDatatableSource(hasFilter: boolean) {
+    this.datatableSettings.source = hasFilter ? '/menu-calculator/filter' : '/menu-calculator';
+    // Força atualização do datatable
+    this.forceUpdate$.next(this.forceUpdate$.value + 1);
+  }
+
+  // Altere o método de filtro para usar a source correta
+  handleFilter(event: any) {
+    const value = event.target.value;
+    const hasFilter = !!value && value.trim().length > 0;
+    this.setDatatableSource(hasFilter);
+    // Atualiza o filtro no DatatableComponent
+    if (this.datatableComponent) {
+      this.datatableComponent.textFilter.next(value);
+    }
   }
 
   add() {

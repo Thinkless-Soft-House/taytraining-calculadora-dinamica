@@ -57,7 +57,20 @@ export class DatatableService<T> {
       urlParams.set('relations', params.relations.join(',')); // Serializa o array de relações
     }
 
-    const url = this.endpoint + this.source + '?' + urlParams.toString();
+    // Ajusta a URL dinamicamente: se houver filtro OU ordenação, usa /filter
+    let endpoint = this.endpoint + this.source;
+    const hasFilter = params.filter && params.filter.length > 0;
+    const hasSort = params.sort && params.sort.active;
+    if ((hasFilter || hasSort) && !this.source.endsWith('/filter')) {
+      if (endpoint.endsWith('/')) {
+        endpoint = endpoint.slice(0, -1);
+      }
+      endpoint += '/filter';
+    } else if (!hasFilter && !hasSort && this.source.endsWith('/filter')) {
+      endpoint = endpoint.replace(/\/filter$/, '');
+    }
+
+    const url = endpoint + '?' + urlParams.toString();
 
     return {
       result$: this.http.get<any>(url).pipe(
@@ -65,9 +78,17 @@ export class DatatableService<T> {
           // Extract initial data and metadata
           console.log('[Datable Service] Response from API:', response);
 
-          // Response is directly an array of items
-          const initialItems = Array.isArray(response) ? response : [];
-          const totalItems = initialItems.length;
+          // Se vier do /filter, espera-se um objeto { data: [], count: N }
+          let initialItems: any[] = [];
+          let totalItems = 0;
+          if (response && Array.isArray(response.data) && typeof response.count === 'number') {
+            initialItems = response.data;
+            totalItems = response.count;
+          } else if (Array.isArray(response)) {
+            // Caso padrão (sem filtro)
+            initialItems = response;
+            totalItems = initialItems.length;
+          }
 
           // Always trim the results to match the requested page size
           // This handles cases where the server returns more items than requested
