@@ -23,11 +23,12 @@
 }
 h1 {
   font-size: 36px;
-  font-weight: 700;
+  font-weight: 100;
   margin: 12px;
 }
 .highlight {
   color: #ff3b8a;
+  font-weight: 700;
 }
 .subtitle {
   max-width: 650px;
@@ -285,7 +286,8 @@ h1 {
     width: 100%;
   }
 
-  .step b, .step p {
+  .step b,
+  .step p {
     text-align: center;
     width: 100%;
     display: block;

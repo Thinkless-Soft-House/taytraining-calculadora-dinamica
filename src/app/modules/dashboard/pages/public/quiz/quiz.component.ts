@@ -43,7 +43,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   step3Form: FormGroup;
 
   goalOptions = [
-    { id: 'fat-loss', title: 'Eliminar gordura', description: 'Para quem tem % de gordura alto' },
+    { id: 'fat-loss', title: 'Eliminar gordura', description: 'Para potencializar queima de gordura' },
     { id: 'muscle-gain', title: 'Ganhar músculo', description: 'Aumentar massa muscular' },
     { id: 'maintain-weight', title: 'Manter o peso', description: 'Melhorar performance' }
   ];
@@ -160,25 +160,25 @@ export class QuizComponent implements OnInit, OnDestroy {
           { b: 31 }
         ],
         30: [
-          { t: 16 },
-          { b: 16, t: 19 },
-          { b: 20, t: 28 },
-          { b: 29, t: 31 },
-          { b: 31 }
+          { t: 17 },
+          { b: 17, t: 20 },
+          { b: 21, t: 29 },
+          { b: 30, t: 32 },
+          { b: 32 }
         ],
         40: [
-          { t: 16 },
-          { b: 16, t: 19 },
-          { b: 20, t: 28 },
-          { b: 29, t: 31 },
-          { b: 31 }
+          { t: 18 },
+          { b: 18, t: 21 },
+          { b: 22, t: 30 },
+          { b: 31, t: 33 },
+          { b: 33 }
         ],
         50: [
-          { t: 16 },
-          { b: 16, t: 19 },
-          { b: 20, t: 28 },
-          { b: 29, t: 31 },
-          { b: 31 }
+          { t: 19 },
+          { b: 19, t: 22 },
+          { b: 23, t: 31 },
+          { b: 32, t: 34 },
+          { b: 34 }
         ]
       };
 
@@ -205,9 +205,25 @@ export class QuizComponent implements OnInit, OnDestroy {
         return false;
       });
 
-      const valorGastoEnergetico = gastoEnergetico[
-        percentualGorduraIndex >= 0 ? percentualGorduraIndex : gastoEnergetico.length - 1
+      const gastoEnergeticoForIndex = [
+        { op: "plus", val: 0.10 }, // fat-loss
+        { op: "plus", val: 0.10 }, // muscle-gain
+        { op: "plus", val: 0 },    // maintain-weight
       ];
+
+      let valorGastoEnergetico;
+      if (percentualGorduraIndex >= 0 && percentualGorduraIndex <= 2) {
+        // Seleciona o valor conforme o objetivo (goal)
+        const goal = this.step1Form.value.goal;
+        let goalIndex = 0;
+        if (goal === 'muscle-gain') goalIndex = 1;
+        else if (goal === 'maintain-weight') goalIndex = 2;
+        valorGastoEnergetico = gastoEnergeticoForIndex[goalIndex];
+      } else {
+        valorGastoEnergetico = gastoEnergetico[
+          percentualGorduraIndex >= 0 ? percentualGorduraIndex : gastoEnergetico.length - 1
+        ];
+      }
 
       // GEB = 655,1 + (9,56 x P) + (1,85 x E) - (4,68 x I)
       // P = peso (kg) | E = estatura (cm) | I = idade (anos)
@@ -216,8 +232,8 @@ export class QuizComponent implements OnInit, OnDestroy {
         valorGastoEnergetico.val === 0
           ? GEB
           : valorGastoEnergetico.op === "plus"
-          ? GEB * (1 + valorGastoEnergetico.val)
-          : GEB * (1 - valorGastoEnergetico.val);
+            ? GEB * (1 + valorGastoEnergetico.val)
+            : GEB * (1 - valorGastoEnergetico.val);
 
       const calorias = Math.round(gastoEnergeticoTotal);
       try {
