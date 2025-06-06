@@ -15,6 +15,7 @@ export class ResultadoQuizComponent {
     private quizStore: QuizStoreService
   ) {
     this.menuPdfUrl = this.quizStore.getMenuPdfUrl();
+    window.scrollTo({ top: 0, behavior: 'smooth' }); // Scrolla para o topo ao entrar na página
   }
 
   baixarPdf() {

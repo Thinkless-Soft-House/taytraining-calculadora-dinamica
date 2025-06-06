@@ -256,6 +256,7 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   onStepChange(event: any): void {
+    window.scrollTo({ top: 0, behavior: 'smooth' }); // Scrolla para o topo ao mudar de step
     this.currentStep = event.selectedIndex + 1;
   }
 }
