@@ -25,4 +25,8 @@ export class MenuService extends BaseModelService {
   getFile(id: number) {
     return this.http.get(`${this.path}/file/${id}`, { responseType: 'blob' });
   }
+
+  getFileByCalories(calorias: number) {
+    return this.http.get(`${this.path}/find-by-calories/${calorias}/pdf`, { responseType: 'blob' });
+  }
 }

@@ -242,6 +242,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         );
         const pdfUrl = menu?.pdfUrl || null;
         this.quizStore.updateMenuPdfUrl(pdfUrl);
+        this.quizStore.updateMenuCalories(calorias); // Salva as calorias usadas para o PDF
         this.router.navigate(['/resultado-quiz']);
       } catch (error: any) {
         // Se for erro 404, buscar o mais próximo
