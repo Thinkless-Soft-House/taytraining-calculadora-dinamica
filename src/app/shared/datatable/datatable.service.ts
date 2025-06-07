@@ -76,7 +76,7 @@ export class DatatableService<T> {
       result$: this.http.get<any>(url).pipe(
         map(response => {
           // Extract initial data and metadata
-          console.log('[Datable Service] Response from API:', response);
+          // console.log('[Datable Service] Response from API:', response);
 
           // Se vier do /filter, espera-se um objeto { data: [], count: N }
           let initialItems: any[] = [];

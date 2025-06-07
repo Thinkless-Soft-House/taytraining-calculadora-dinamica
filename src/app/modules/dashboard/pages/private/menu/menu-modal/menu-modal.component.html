@@ -43,10 +43,14 @@
           </div>
 
           <div class="labels">
-            <mat-label>URL do PDF</mat-label>
-            <mat-form-field appearance="outline" class="menu-input short-input">
-              <input matInput formControlName="pdfUrl" placeholder="https://exemplo.com/cardapio.pdf" />
-            </mat-form-field>
+            <mat-label>PDF do Cardápio</mat-label>
+            <label class="custom-file-label file-row">
+              <input type="file" accept="application/pdf" (change)="onFileSelected($event)" hidden #fileInput />
+              <button [ngClass]="selectedFileName === 'Nenhum arquivo selecionado' ? 'button-variant' : 'button-options'" type="button" (click)="fileInput.click()">
+                {{ selectedFileName === 'Nenhum arquivo selecionado' ? 'Selecionar arquivo' : 'Alterar arquivo' }}
+              </button>
+              <span class="file-name">{{ selectedFileName }}</span>
+            </label>
           </div>
 
           <div class="labels toggle-container">

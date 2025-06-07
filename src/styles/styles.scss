@@ -105,6 +105,32 @@ body {
   }
 }
 
+.button-variant {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  border: none;
+  gap: 8px;
+  color: #f52a8a;
+  border: 1px solid #f52a8a;
+  background-color: transparent;
+  // width: 150px;
+  // height: 40px;
+  padding: 8px 24px;
+  border-radius: 10px;
+
+  mat-icon {
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+  }
+
+  &:hover {
+    cursor: pointer;
+  }
+}
+
 .custom-dialog-container .mat-mdc-dialog-container {
   border-radius: 8px !important;
   overflow: hidden;
@@ -118,7 +144,12 @@ body {
 
 // Alternativa: backdrop colorido
 .cdk-overlay-backdrop.colored-backdrop {
-  background-color: rgba(245, 42, 138, 0.3) !important; // Rosa com transparência
+  background-color: rgba(
+    245,
+    42,
+    138,
+    0.3
+  ) !important; // Rosa com transparência
 }
 
 // Backdrop cinza claro
@@ -128,7 +159,11 @@ body {
 
 // Backdrop animado
 .cdk-overlay-backdrop.animated-backdrop {
-  background: linear-gradient(45deg, rgba(245, 42, 138, 0.3), rgba(14, 154, 253, 0.3));
+  background: linear-gradient(
+    45deg,
+    rgba(245, 42, 138, 0.3),
+    rgba(14, 154, 253, 0.3)
+  );
   backdrop-filter: blur(3px);
   transition: all 0.3s ease-in-out;
 }
@@ -152,10 +187,8 @@ input[type="number"] {
 mat-card {
   background: #ffffff !important;
   border-radius: 20px !important;
-  box-shadow:
-    0 8px 32px 0 rgba(16, 30, 54, 0.14),
-    0 2px 8px 0 rgba(16, 30, 54, 0.10),
-    0 1.5px 8px 0 rgba(245, 42, 138, 0.05) !important;
+  box-shadow: 0 8px 32px 0 rgba(16, 30, 54, 0.14),
+    0 2px 8px 0 rgba(16, 30, 54, 0.1), 0 1.5px 8px 0 rgba(245, 42, 138, 0.05) !important;
   border: none !important;
   padding: 0 !important;
   margin: 0 auto !important;

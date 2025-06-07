@@ -81,9 +81,9 @@ export class BaseModelService {
 
   delete(id: number) {
     const req = this.http.delete(`${this.path}/${id}`);
-    console.log('Deleting item with ID:', id);
-    console.log('Request URL:', `${this.path}/${id}`);
-    console.log('Request Method: DELETE');
+    // console.log('Deleting item with ID:', id);
+    // console.log('Request URL:', `${this.path}/${id}`);
+    // console.log('Request Method: DELETE');
     return this.request(req);
   }
 }

@@ -111,6 +111,22 @@
         margin: 0;
       }
     }
+
+    .custom-file-label input[type="file"] {
+      display: none;
+    }
+
+    .custom-file-label.file-row {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .file-name {
+      margin-left: 12px;
+      color: #000000;
+    }
   }
 
   .footer {

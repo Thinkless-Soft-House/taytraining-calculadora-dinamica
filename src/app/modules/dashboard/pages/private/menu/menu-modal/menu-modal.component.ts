@@ -60,14 +60,12 @@ export class MenuModalComponent implements OnInit {
     name: new FormControl('', [Validators.required, Validators.maxLength(100)]),
     caloriasMinimas: new FormControl('', [Validators.required]),
     caloriasMaximas: new FormControl('', [Validators.required]),
-    pdfUrl: new FormControl('', [
-      Validators.required,
-      Validators.pattern(/^https?:\/\/[\w.-]+(\/[\w\-./?%&=]*)?$/)
-    ]),
     ativo: new FormControl(true, [Validators.required]),
   });
 
   isCaloriesInvalid: boolean = false;
+  selectedPdfFile: File | null = null;
+  selectedFileName: string = 'Nenhum arquivo selecionado';
 
   constructor(
     public dialogRef: MatDialogRef<MenuModalComponent>,
@@ -115,10 +113,6 @@ export class MenuModalComponent implements OnInit {
       if (controls['caloriasMaximas'].invalid) {
         errors.push('Calorias máximas é obrigatório.');
       }
-      if (controls['pdfUrl'].invalid) {
-        if (controls['pdfUrl'].errors?.['required']) errors.push('URL do PDF é obrigatório.');
-        if (controls['pdfUrl'].errors?.['pattern']) errors.push('URL do PDF inválida.');
-      }
       return errors.join(' ');
     }
     return '';
@@ -126,27 +120,32 @@ export class MenuModalComponent implements OnInit {
 
   private async initializeMenuData(): Promise<void> {
     const menuId = this.data.id;
-    console.log('Menu ID:', menuId);
+    // console.log('Menu ID:', menuId);
 
     if (menuId !== -1) {
       this.isLoadingData = true;
       try {
         const response = await this.menuService.getById(menuId);
         this.menu = response.data || response;
+        // console.log('Menu data loaded:', this.menu);
         this.form.patchValue({
           name: this.menu?.name || '',
           caloriasMinimas: this.menu?.minCalories || '',
           caloriasMaximas: this.menu?.maxCalories || '',
-          pdfUrl: this.menu?.pdfUrl || '',
           ativo: this.menu?.status === MenuStatus.ACTIVE,
         });
+        // Se já existe um PDF, mostra o nome do arquivo
+        if (this.menu && this.menu.pdfUrl) {
+          const path = this.menu.pdfUrl as string;
+          this.selectedFileName = path.split('/').pop() || 'Nenhum arquivo selecionado';
+        }
       } catch (error) {
         console.error('Erro ao carregar dados do cardápio:', error);
       } finally {
         this.isLoadingData = false;
       }
     } else {
-      console.log('Creating new menu');
+      // console.log('Creating new menu');
       this.createFormData();
     }
   }
@@ -156,9 +155,26 @@ export class MenuModalComponent implements OnInit {
       name: '',
       caloriasMinimas: '',
       caloriasMaximas: '',
-      pdfUrl: '',
       ativo: true,
     });
+  }
+
+  onFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.selectedFileName = input.files[0].name;
+      const file = input.files[0];
+      if (file.type === 'application/pdf') {
+        this.selectedPdfFile = file;
+        // Opcional: limpar erro do form
+        this.form.get('pdfUrl')?.setErrors(null);
+      } else {
+        this.selectedPdfFile = null;
+        this.form.get('pdfUrl')?.setErrors({ invalidType: true });
+      }
+    } else {
+      this.selectedFileName = 'Nenhum arquivo selecionado';
+    }
   }
 
   async saveMenu() {
@@ -166,47 +182,44 @@ export class MenuModalComponent implements OnInit {
       return;
     }
 
-    // Custom validation for calories
     const caloriasMin = this.form.get('caloriasMinimas')?.value;
     const caloriasMax = this.form.get('caloriasMaximas')?.value;
-
     this.isSaving = true;
     const formValue = this.form.value;
 
-    // Prepare data for backend
-    const menuData: Partial<Menu> = {
-      name: formValue.name,
-      description: `Cardápio com faixa calórica de ${caloriasMin}-${caloriasMax} calorias`,
-      pdfUrl: formValue.pdfUrl,
-      status: formValue.ativo ? MenuStatus.ACTIVE : MenuStatus.INACTIVE,
-      minCalories: caloriasMin,
-      maxCalories: caloriasMax,
-    };
+    // Monta FormData para envio multipart
+    const formData = new FormData();
+    formData.append('name', formValue.name);
+    formData.append('description', `Cardápio com faixa calórica de ${caloriasMin}-${caloriasMax} calorias`);
+    formData.append('status', formValue.ativo ? MenuStatus.ACTIVE : MenuStatus.INACTIVE);
+    formData.append('minCalories', caloriasMin);
+    formData.append('maxCalories', caloriasMax);
+    if (this.selectedPdfFile) {
+      formData.append('file', this.selectedPdfFile);
+    }
 
     try {
+      let result;
       if (this.data.id === -1) {
-        // Create new menu using BaseModelService method
-        const createdMenu = await this.menuService.create(menuData);
-        console.log('Menu criado com sucesso:', createdMenu);
+        // Criação
+        result = await this.menuService.createWithFile(formData);
         this.snackBar.open('Cardápio criado com sucesso!', '✓', {
           duration: 3000,
           panelClass: ['success-snackbar'],
           horizontalPosition: 'right',
           verticalPosition: 'top'
         });
-        this.dialogRef.close({ success: true, menu: createdMenu });
       } else {
-        // Update existing menu using BaseModelService method
-        const updatedMenu = await this.menuService.update(this.data.id, menuData);
-        console.log('Menu atualizado com sucesso:', updatedMenu);
+        // Atualização
+        result = await this.menuService.updateWithFile(this.data.id, formData);
         this.snackBar.open('Cardápio atualizado com sucesso!', '✓', {
           duration: 3000,
           panelClass: ['success-snackbar'],
           horizontalPosition: 'right',
           verticalPosition: 'top'
         });
-        this.dialogRef.close({ success: true, menu: updatedMenu });
       }
+      this.dialogRef.close({ success: true, menu: result });
     } catch (error: any) {
       this.isSaving = false;
       console.error('Erro ao salvar cardápio:', error);

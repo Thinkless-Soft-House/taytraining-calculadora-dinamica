@@ -50,7 +50,7 @@ export class AuthService {
   register(payload: User): Observable<any> {
     return this.http.post<any>(`${this.endpoint}/auth/register`, payload).pipe(
       tap((response) => {
-        console.log('User registered successfully:', response);
+        // console.log('User registered successfully:', response);
       }),
     );
   }

@@ -41,7 +41,7 @@ export class LoginComponent implements OnInit {
       this.authService.login(this.loginForm.value).subscribe({
         next: (response) => {
           this.isLoading = false;
-          console.log('Login successful', response);
+          // console.log('Login successful', response);
           this.snackBar.open('Login realizado com sucesso!', '✓', {
             duration: 3000,
             panelClass: ['success-snackbar'],

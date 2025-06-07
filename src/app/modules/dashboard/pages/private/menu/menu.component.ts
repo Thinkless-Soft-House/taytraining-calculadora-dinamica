@@ -91,18 +91,7 @@ export class MenuComponent implements OnInit {
             {
               name: 'download',
               icon: 'pdf',
-              handler: (action: string, row: Menu) => {
-                console.log('Baixando PDF:', row.pdfUrl);
-                const link = document.createElement('a');
-                link.href = row.pdfUrl;
-                link.download = `cardapio-${row.name || 'menu'}.pdf`;
-                link.target = '_blank';
-                link.rel = 'noopener noreferrer';
-                link.style.display = 'none';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-              },
+              handler: (action: string, row: Menu) => this.downloadPdf(row.id),
               tooltip: 'Baixar PDF do cardápio'
             }
           ]
@@ -178,7 +167,7 @@ export class MenuComponent implements OnInit {
   async delete(id: number) {
     try {
       await this.menuService.delete(id);
-      console.log('Cardápio deletado com sucesso');
+      // console.log('Cardápio deletado com sucesso');
       this.refreshTable();
     } catch (error) {
       console.error('Erro ao deletar cardápio:', error);
@@ -186,7 +175,7 @@ export class MenuComponent implements OnInit {
   }
 
   private async openDetailsModal(action: 'create' | 'edit', id?: number) {
-    console.log(`Abrindo modal de ${action} para o cardápio com ID:`, id);
+    // console.log(`Abrindo modal de ${action} para o cardápio com ID:`, id);
 
     const ref = this.dialog.open(MenuModalComponent, {
       panelClass: 'custom-dialog-container',
@@ -206,7 +195,7 @@ export class MenuComponent implements OnInit {
           ? 'Cardápio criado com sucesso!'
           : 'Cardápio editado com sucesso!';
 
-        console.log(description);
+        // console.log(description);
       }
     });
   }
@@ -215,5 +204,23 @@ export class MenuComponent implements OnInit {
     this.updateTableCount++;
     this.updateTable.next(this.updateTableCount);
     this.forceUpdate$.next(this.forceUpdate$.value + 1);
+  }
+
+  async downloadPdf(id: number) {
+    try {
+      const blob = await this.menuService.getFile(id).toPromise();
+      if (!blob) throw new Error('Arquivo não encontrado');
+      const fileName = `cardapio_${id}.pdf`;
+      const url = window.URL.createObjectURL(blob as Blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Erro ao baixar PDF:', error);
+    }
   }
 }
