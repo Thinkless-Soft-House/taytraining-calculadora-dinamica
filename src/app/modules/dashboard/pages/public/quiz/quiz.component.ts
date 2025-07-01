@@ -277,6 +277,7 @@ export class QuizComponent implements OnInit, OnDestroy {
           : gastoEnergeticoComFA * (1 - valorGastoEnergetico.val);
 
       const calorias = Math.round(gastoEnergeticoTotal);
+      console.log('Gasto energético total:', calorias);
       try {
         const menu: any = await firstValueFrom(
           this.menuService.findByCalories(calorias)
