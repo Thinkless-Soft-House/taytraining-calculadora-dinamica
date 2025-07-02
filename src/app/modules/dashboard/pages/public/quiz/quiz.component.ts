@@ -172,15 +172,10 @@ export class QuizComponent implements OnInit, OnDestroy {
       const { age, weight, height, bodyFatPercentage } = this.step2Form.value;
       const activityLevel = this.step3Form.value.activityLevel;
       const goal = this.step1Form.value.goal;
-      
-      console.log('=== DADOS DE ENTRADA ===');
-      console.log('Idade:', age);
-      console.log('Peso:', weight);
-      console.log('Altura:', height);
-      console.log('% Gordura:', bodyFatPercentage);
-      console.log('Nível Atividade:', activityLevel);
-      console.log('Objetivo:', goal);
-      
+
+      // Log de entrada (manter para validação)
+      console.log('Dados:', { age, weight, height, bodyFatPercentage, activityLevel, goal });
+
       const activityFactors: { [id: string]: number } = {
         sedentary: 1.2,
         'lightly-active': 1.3,
@@ -189,7 +184,6 @@ export class QuizComponent implements OnInit, OnDestroy {
         'extremely-active': 1.725,
       };
       const FA = activityFactors[activityLevel] || 1.2;
-      console.log('Fator de Atividade (FA):', FA);
 
       // Tipos auxiliares para faixaSituacao
       type FaixaItem = { t?: number; b?: number };
@@ -239,33 +233,23 @@ export class QuizComponent implements OnInit, OnDestroy {
       const dezenaIdade = Math.floor(age / 10) * 10;
       const faixaCorretasituacao =
         faixaSituacao[dezenaIdade] || faixaSituacao[50];
-      
-      console.log('=== CLASSIFICAÇÃO POR IDADE ===');
-      console.log('Dezena da idade:', dezenaIdade);
-      console.log('Faixa selecionada:', faixaCorretasituacao);
 
       // Encontrar índice do percentual de gordura
       const percentualGorduraIndex = faixaCorretasituacao.findIndex(
         (item: FaixaItem) => {
           if (item.t !== undefined && bodyFatPercentage <= item.t) {
-            console.log(`Testando faixa: ≤${item.t}% - ${bodyFatPercentage} <= ${item.t}? SIM`);
             return true;
           }
           if (item.b !== undefined && bodyFatPercentage >= item.b) {
             if (item.t !== undefined) {
-              console.log(`Testando faixa: ${item.b}-${item.t}% - ${bodyFatPercentage} >= ${item.b} E ${bodyFatPercentage} <= ${item.t}? ${bodyFatPercentage >= item.b && bodyFatPercentage <= item.t ? 'SIM' : 'NÃO'}`);
               return bodyFatPercentage <= item.t;
             } else {
-              console.log(`Testando faixa: ≥${item.b}% - ${bodyFatPercentage} >= ${item.b}? SIM`);
               return true;
             }
           }
           return false;
         }
       );
-      
-      console.log('=== ÍNDICE DO % GORDURA ===');
-      console.log('Índice encontrado:', percentualGorduraIndex);
 
       const gastoEnergeticoForIndex = [
         { op: 'plus', val: 0.1 }, // fat-loss
@@ -274,67 +258,39 @@ export class QuizComponent implements OnInit, OnDestroy {
       ];
 
       let valorGastoEnergetico;
-      console.log('=== DECISÃO DA LÓGICA ===');
-      console.log('Condição: percentualGorduraIndex >= 0 && percentualGorduraIndex <= 2');
-      console.log(`${percentualGorduraIndex} >= 0 && ${percentualGorduraIndex} <= 2 = ${percentualGorduraIndex >= 0 && percentualGorduraIndex <= 2}`);
-      
+
       if (percentualGorduraIndex >= 0 && percentualGorduraIndex <= 2) {
-        console.log('>>> USANDO LÓGICA POR OBJETIVO <<<');
         // Seleciona o valor conforme o objetivo (goal)
-        const goal = this.step1Form.value.goal;
         let goalIndex = 0;
         if (goal === 'muscle-gain') goalIndex = 1;
         else if (goal === 'maintain-weight') goalIndex = 2;
         valorGastoEnergetico = gastoEnergeticoForIndex[goalIndex];
-        console.log('Objetivo:', goal);
-        console.log('Goal Index:', goalIndex);
-        console.log('Valor selecionado (gastoEnergeticoForIndex):', valorGastoEnergetico);
       } else {
-        console.log('>>> USANDO LÓGICA POR % GORDURA <<<');
         valorGastoEnergetico =
           gastoEnergetico[
             percentualGorduraIndex >= 0
               ? percentualGorduraIndex
               : gastoEnergetico.length - 1
           ];
-        console.log('Índice usado no gastoEnergetico:', percentualGorduraIndex >= 0 ? percentualGorduraIndex : gastoEnergetico.length - 1);
-        console.log('Valor selecionado (gastoEnergetico):', valorGastoEnergetico);
       }
 
       // GEB = 655,1 + (9,56 x P) + (1,85 x E) - (4,68 x I)
       // P = peso (kg) | E = estatura (cm) | I = idade (anos)
       const GEB = 655.1 + 9.56 * weight + 1.85 * height - 4.68 * age;
-      console.log('=== CÁLCULO GEB ===');
-      console.log(`GEB = 655.1 + (9.56 × ${weight}) + (1.85 × ${height}) - (4.68 × ${age})`);
-      console.log(`GEB = 655.1 + ${9.56 * weight} + ${1.85 * height} - ${4.68 * age}`);
-      console.log('GEB =', GEB);
-      
+
       const gastoEnergeticoComFA = GEB * FA;
-      console.log('=== APLICAÇÃO DO FA ===');
-      console.log(`Gasto com FA = ${GEB} × ${FA} = ${gastoEnergeticoComFA}`);
-      
+
       const gastoEnergeticoTotal =
         valorGastoEnergetico.val === 0
           ? gastoEnergeticoComFA
           : valorGastoEnergetico.op === 'plus'
           ? gastoEnergeticoComFA * (1 + valorGastoEnergetico.val)
           : gastoEnergeticoComFA * (1 - valorGastoEnergetico.val);
-      
-      console.log('=== APLICAÇÃO DO AJUSTE FINAL ===');
-      console.log('Valor do ajuste:', valorGastoEnergetico);
-      if (valorGastoEnergetico.val === 0) {
-        console.log('Sem ajuste - mantém valor:', gastoEnergeticoComFA);
-      } else if (valorGastoEnergetico.op === 'plus') {
-        console.log(`Ajuste positivo: ${gastoEnergeticoComFA} × (1 + ${valorGastoEnergetico.val}) = ${gastoEnergeticoComFA} × ${1 + valorGastoEnergetico.val} = ${gastoEnergeticoTotal}`);
-      } else {
-        console.log(`Ajuste negativo: ${gastoEnergeticoComFA} × (1 - ${valorGastoEnergetico.val}) = ${gastoEnergeticoComFA} × ${1 - valorGastoEnergetico.val} = ${gastoEnergeticoTotal}`);
-      }
 
       const calorias = Math.round(gastoEnergeticoTotal);
-      console.log('=== RESULTADO FINAL ===');
-      console.log('Gasto energético total (antes arredondar):', gastoEnergeticoTotal);
-      console.log('Calorias finais (arredondado):', calorias);
-      console.log('========================');
+
+      // Log do resultado final (manter para validação)
+      console.log('Resultado:', { GEB, FA, gastoEnergeticoComFA, valorGastoEnergetico, gastoEnergeticoTotal, calorias });
       try {
         const menu: any = await firstValueFrom(
           this.menuService.findByCalories(calorias)
