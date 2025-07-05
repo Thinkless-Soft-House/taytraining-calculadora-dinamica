@@ -72,30 +72,30 @@ export class QuizComponent implements OnInit, OnDestroy {
       id: 'sedentary',
       title: 'Sedentário',
       description:
-        'Passa a maior parte do dia sentado e pratica o mínimo de exercício físico.',
+        'Passa a maior parte do dia sentada e pratica o mínimo de exercício físico.',
     },
     {
       id: 'lightly-active',
-      title: 'Levemente ativo',
-      description: 'Pratica exercício físico de 1 a 3 vezes por semana.',
+      title: 'Pouco ativo',
+      description: 'Se movimenta pouco ao longo do dia e pratica exercício físico de 2 a 3 vezes por semana.',
     },
     {
       id: 'moderately-active',
       title: 'Moderadamente ativo',
       description:
-        'Pratica exercício físico de forma moderada, de 3 a 5 vezes por semana.',
+        'Se movimento mais ao longo do dia e pratica exercício físico de 3 a 5 vezes por semana.',
     },
     {
       id: 'very-active',
       title: 'Muito ativo',
       description:
-        'Pratica exercício físico de forma intensa, de 6 a 7 vezes por semana',
+        'Se movimenta bastante ao longo do dia e pratica exercício físico de forma intensa de 6 a 7 vezes por semana.',
     },
     {
       id: 'extremely-active',
       title: 'Extremamente ativo',
       description:
-        'Atleta que se exercita de forma extremamente intensa, realizando até dois treinos por dia.',
+        'Atleta que se exercita todos os dias de forma extremamente intensa, realizando até 2 treinos por dia.',
     },
   ];
 
