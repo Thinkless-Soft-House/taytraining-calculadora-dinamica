@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormBuilder,
@@ -16,6 +16,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
+import { MatDialog, MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import { QuizStoreService } from './quiz.store';
 import { Router } from '@angular/router';
@@ -33,6 +34,7 @@ import { MenuService } from '../../../../../api/services/menu.service';
     MatFormFieldModule,
     MatInputModule,
     MatIconModule,
+    MatDialogModule,
   ],
   templateUrl: './quiz.component.html',
   styleUrl: './quiz.component.scss',
@@ -101,7 +103,8 @@ export class QuizComponent implements OnInit, OnDestroy {
     private fb: FormBuilder,
     private quizStore: QuizStoreService,
     private router: Router,
-    private menuService: MenuService // ADICIONADO
+    private menuService: MenuService,
+    private dialog: MatDialog
   ) {
     this.step1Form = this.fb.group({
       goal: ['', Validators.required],
@@ -123,6 +126,9 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    // Verifica se já existe um cardápio salvo no sessionStorage
+    this.checkExistingResult();
+
     // Load existing data from store
     this.quizStore.quizData$
       .pipe(takeUntil(this.destroy$))
@@ -313,8 +319,114 @@ export class QuizComponent implements OnInit, OnDestroy {
     }
   }
 
+  private checkExistingResult(): void {
+    const existingCalories = sessionStorage.getItem('menuCalories');
+    if (existingCalories) {
+      this.showConfirmationDialog();
+    }
+  }
+
+  private showConfirmationDialog(): void {
+    const dialogRef = this.dialog.open(QuizConfirmationDialogComponent, {
+      width: '90%',
+      maxWidth: '400px',
+      disableClose: true,
+      panelClass: 'quiz-confirmation-dialog',
+      data: {}
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result === 'restart') {
+        // Limpa o sessionStorage e continua no quiz
+        sessionStorage.removeItem('menuCalories');
+        this.quizStore.clearData();
+      } else if (result === 'continue') {
+        // Vai para a página de resultado
+        this.router.navigate(['/resultado-quiz']);
+      }
+    });
+  }
+
   onStepChange(event: any): void {
     window.scrollTo({ top: 0, behavior: 'smooth' }); // Scrolla para o topo ao mudar de step
     this.currentStep = event.selectedIndex + 1;
+  }
+}
+
+// Componente de diálogo de confirmação
+@Component({
+  selector: 'app-quiz-confirmation-dialog',
+  standalone: true,
+  imports: [CommonModule, MatDialogModule, MatButtonModule],
+  template: `
+    <div class="dialog-container">
+      <h2 mat-dialog-title>Você já tem um cardápio!</h2>
+      <mat-dialog-content>
+        <p>Detectamos que você já possui um cardápio personalizado. O que deseja fazer?</p>
+      </mat-dialog-content>
+      <mat-dialog-actions>
+        <button mat-button (click)="onContinue()" class="continue-btn">Ver meu cardápio</button>
+        <button mat-raised-button color="primary" (click)="onRestart()" class="restart-btn">Fazer novo quiz</button>
+      </mat-dialog-actions>
+    </div>
+  `,
+  styles: [`
+    .dialog-container {
+      padding: 8px;
+    }
+    h2 {
+      color: #111827;
+      font-size: 1.4rem;
+      margin: 0 0 16px 0;
+      text-align: center;
+      font-weight: 700;
+    }
+    mat-dialog-content {
+      margin: 16px 0;
+      text-align: center;
+      color: #6b7280;
+      line-height: 1.5;
+    }
+    mat-dialog-actions {
+      display: flex;
+      flex-direction: row;
+      gap: 8px;
+      margin-top: 16px;
+      padding: 0;
+    }
+    .continue-btn, .restart-btn {
+      width: 100%;
+      height: 44px;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+    .restart-btn {
+      background: #f52a8a !important;
+      color: white;
+    }
+    @media (min-width: 480px) {
+      mat-dialog-actions {
+        flex-direction: row;
+        justify-content: space-between;
+      }
+      .continue-btn, .restart-btn {
+        width: auto;
+        flex: 1;
+      }
+    }
+  `]
+})
+export class QuizConfirmationDialogComponent {
+  constructor(
+    public dialogRef: MatDialogRef<QuizConfirmationDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any
+  ) {}
+
+  onRestart(): void {
+    this.dialogRef.close('restart');
+  }
+
+  onContinue(): void {
+    this.dialogRef.close('continue');
   }
 }

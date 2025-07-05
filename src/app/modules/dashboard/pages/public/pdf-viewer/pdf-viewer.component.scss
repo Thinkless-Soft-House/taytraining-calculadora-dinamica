@@ -1,0 +1,358 @@
+.pdf-viewer-container {
+  min-height: 100vh;
+  background: linear-gradient(to bottom right, #fdf2f8, #ffffff, #faf5ff);
+  display: flex;
+  flex-direction: column;
+}
+
+.pdf-header {
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 16px 24px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  border-bottom: 1px solid #e5e7eb;
+
+  .header-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    width: 100%;
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    @media (max-width: 480px) {
+      gap: 8px;
+    }
+  }
+
+  .back-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #6b7280;
+    font-weight: 500;
+    transition: color 0.2s;
+
+    &:hover {
+      color: #f52a8a;
+    }
+
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  .pdf-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin: 0;
+    text-align: center;
+    letter-spacing: -0.5px;
+    line-height: 1.2;
+
+    .cardapio-text {
+      color: #111827;
+    }
+
+    .personalizado-text {
+      color: #f52a8a;
+      margin-left: 0.5rem;
+    }
+
+    @media (max-width: 768px) {
+      font-size: 1.4rem;
+    }
+
+    @media (max-width: 480px) {
+      font-size: 1.3rem;
+      line-height: 1.3;
+
+      .personalizado-text {
+        margin-left: 0.3rem;
+      }
+    }
+  }
+
+  .download-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f52a8a !important;
+    font-weight: 600;
+    padding: 0 24px;
+    height: 44px;
+    color: white;
+
+    &:hover {
+      background: #e91e63 !important;
+    }
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+  }
+}
+
+.pdf-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 24px;
+
+  p {
+    font-size: 1.1rem;
+    color: #6b7280;
+    margin: 0;
+    text-align: center;
+  }
+
+  mat-spinner {
+    color: #f52a8a;
+  }
+}
+
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  text-align: center;
+  width: 100%;
+  max-width: 95vw;
+  margin: 0 auto;
+  padding: 16px;
+  gap: 16px;
+
+  .error-icon {
+    font-size: 3rem;
+    margin-bottom: 8px;
+  }
+
+  h2 {
+    font-size: 1.3rem;
+    color: #111827;
+    margin: 0;
+    font-weight: 700;
+    word-wrap: break-word;
+
+    @media (min-width: 768px) {
+      font-size: 1.5rem;
+    }
+  }
+
+  p {
+    font-size: 0.95rem;
+    color: #6b7280;
+    margin: 0;
+    line-height: 1.5;
+    word-wrap: break-word;
+    max-width: 100%;
+
+    @media (min-width: 768px) {
+      font-size: 1rem;
+    }
+  }
+
+  .error-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+    flex-direction: column;
+    width: 100%;
+    max-width: 300px;
+
+    @media (min-width: 480px) {
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: center;
+      max-width: none;
+    }
+
+    button {
+      width: 100%;
+      min-width: auto;
+      padding: 12px 16px;
+      font-size: 0.9rem;
+
+      @media (min-width: 480px) {
+        width: auto;
+        min-width: 140px;
+        font-size: 1rem;
+      }
+    }
+  }
+}
+
+.pdf-viewer-wrapper {
+  width: 100%;
+  max-width: 900px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  min-height: 600px;
+  margin: 0 auto;
+
+  @media (max-width: 768px) {
+    border-radius: 8px;
+    min-height: 500px;
+    max-width: 100%;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  }
+
+  @media (max-width: 480px) {
+    border-radius: 6px;
+    min-height: 400px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .pdf-viewer {
+    width: 100%;
+    min-height: 600px;
+    display: block;
+
+    @media (max-width: 768px) {
+      min-height: 500px;
+    }
+
+    @media (max-width: 480px) {
+      min-height: 400px;
+    }
+  }
+}
+
+.pdf-footer {
+  background: rgba(255, 255, 255, 0.9);
+  padding: 16px 24px;
+  text-align: center;
+  border-top: 1px solid #e5e7eb;
+  margin-top: auto;
+
+  p {
+    margin: 0;
+    color: #6b7280;
+    font-size: 0.95rem;
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.5;
+
+    strong {
+      color: #111827;
+    }
+  }
+}
+
+// Responsividade - Mobile First
+@media (max-width: 768px) {
+  .pdf-header {
+    padding: 12px 16px;
+
+    .header-content {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 8px;
+
+      .back-button {
+        align-self: flex-start;
+      }
+
+      .pdf-title {
+        text-align: center;
+        font-size: 1.4rem;
+      }
+
+      .download-button {
+        align-self: stretch;
+        justify-content: center;
+      }
+    }
+  }
+
+  .pdf-content {
+    padding: 12px;
+  }
+
+  .pdf-viewer-wrapper {
+    border-radius: 8px;
+    min-height: 500px;
+    margin: 0;
+    width: 100%;
+
+    .pdf-viewer {
+      min-height: 500px;
+    }
+  }
+
+  .loading-container {
+    min-height: 300px;
+    padding: 16px;
+
+    p {
+      font-size: 1rem;
+      padding: 0 16px;
+    }
+  }
+
+  .pdf-footer {
+    padding: 12px 16px;
+
+    p {
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+  }
+}
+
+// Customização específica do ng2-pdf-viewer
+::ng-deep {
+  pdf-viewer {
+    display: block;
+    width: 100%;
+
+    .ng2-pdf-viewer-container {
+      overflow: auto;
+      position: relative;
+
+      .pdfViewer {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px 0;
+
+        .page {
+          margin: 10px auto;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+          border-radius: 4px;
+          overflow: hidden;
+        }
+      }
+    }
+  }
+}

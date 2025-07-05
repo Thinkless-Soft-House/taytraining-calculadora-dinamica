@@ -1,0 +1,70 @@
+<div class="pdf-viewer-container">
+  <!-- Header com botão voltar -->
+  <div class="pdf-header">
+    <div class="header-content">
+      <button mat-button class="back-button" (click)="voltarParaResultado()">
+        <mat-icon>arrow_back</mat-icon>
+        Voltar
+      </button>
+
+      <h1 class="pdf-title">
+        <span class="cardapio-text">Cardápio</span>
+        <span class="personalizado-text">Personalizado</span>
+      </h1>
+
+      <button mat-raised-button color="primary" class="download-button" (click)="baixarPdf()">
+        <mat-icon>download</mat-icon>
+        Baixar PDF
+      </button>
+    </div>
+  </div>
+
+  <!-- Conteúdo principal -->
+  <div class="pdf-content">
+    <!-- Loading state -->
+    <div *ngIf="isLoading" class="loading-container">
+      <mat-spinner diameter="60"></mat-spinner>
+      <p>Carregando seu cardápio personalizado...</p>
+    </div>
+
+    <!-- Error state -->
+    <div *ngIf="hasError" class="error-container">
+      <div class="error-icon">⚠️</div>
+      <h2>Ops! Algo deu errado</h2>
+      <p>{{ errorMessage }}</p>
+      <div class="error-actions">
+        <button mat-raised-button color="primary" (click)="voltarParaQuiz()">
+          Refazer Quiz
+        </button>
+        <button mat-button (click)="voltarParaResultado()">
+          Voltar ao Resultado
+        </button>
+      </div>
+    </div>
+
+    <!-- PDF Viewer -->
+    <div *ngIf="!isLoading && !hasError && pdfSrc" class="pdf-viewer-wrapper">
+      <pdf-viewer
+        [src]="pdfSrc"
+        [render-text]="true"
+        [original-size]="false"
+        [fit-to-page]="true"
+        [zoom]="1"
+        [zoom-scale]="'page-fit'"
+        [show-all]="true"
+        [page]="1"
+        class="pdf-viewer"
+        (after-load-complete)="onPdfLoadComplete()"
+        (error)="onPdfError($event)">
+      </pdf-viewer>
+    </div>
+  </div>
+
+  <!-- Footer informativo -->
+  <div class="pdf-footer" *ngIf="!isLoading && !hasError">
+    <p>
+      💡 <strong>Dica:</strong> Este cardápio foi personalizado com base nas suas informações.
+      Para melhor visualização, utilize o botão de download.
+    </p>
+  </div>
+</div>
