@@ -12,9 +12,12 @@
         <span class="personalizado-text">Personalizado</span>
       </h1>
 
-      <button mat-raised-button color="primary" class="download-button" (click)="baixarPdf()">
-        <mat-icon>download</mat-icon>
-        Baixar PDF
+      <button mat-raised-button color="primary" class="download-button"
+              (click)="baixarPdf()"
+              [disabled]="isDownloading || isLoading || hasError">
+        <mat-spinner *ngIf="isDownloading" diameter="20" style="display: inline-block; margin-right: 8px;"></mat-spinner>
+        <mat-icon *ngIf="!isDownloading">download</mat-icon>
+        {{ isDownloading ? 'Baixando...' : 'Baixar PDF' }}
       </button>
     </div>
   </div>

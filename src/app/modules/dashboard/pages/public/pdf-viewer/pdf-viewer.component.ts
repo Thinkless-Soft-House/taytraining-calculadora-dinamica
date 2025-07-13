@@ -7,6 +7,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { saveAs } from 'file-saver';
 
 import { QuizStoreService } from '../quiz/quiz.store';
 import { MenuService } from '../../../../../api/services/menu.service';
@@ -32,6 +33,7 @@ export class PdfViewerComponent implements OnInit, OnDestroy {
   hasError = false;
   errorMessage = '';
   menuCalories: number | null = null;
+  isDownloading = false;
 
   constructor(
     private router: Router,
@@ -120,19 +122,84 @@ export class PdfViewerComponent implements OnInit, OnDestroy {
       return;
     }
 
+    this.isDownloading = true;
+
     this.menuService.getFileByCalories(this.menuCalories).subscribe({
       next: (blob: Blob) => {
         const fileName = `cardapio_${this.menuCalories}_calorias.pdf`;
-        const link = document.createElement('a');
-        link.href = window.URL.createObjectURL(blob);
-        link.download = fileName;
-        link.click();
-        window.URL.revokeObjectURL(link.href);
+
+        try {
+          // Método 1: Usar FileSaver.js (melhor compatibilidade com mobile)
+          saveAs(blob, fileName);
+
+          // Feedback de sucesso para mobile
+          if (this.isMobile()) {
+            setTimeout(() => {
+              alert('Download iniciado! Verifique a pasta de downloads do seu dispositivo.');
+            }, 500);
+          }
+        } catch (error) {
+          console.warn('FileSaver falhou, tentando método alternativo:', error);
+
+          try {
+            // Método 2: Fallback para browsers que não suportam FileSaver
+            this.downloadWithFallback(blob, fileName);
+          } catch (fallbackError) {
+            console.error('Todos os métodos de download falharam:', fallbackError);
+
+            // Método 3: Último recurso - abrir em nova aba
+            this.openInNewTab(blob);
+          }
+        }
+
+        this.isDownloading = false;
       },
       error: (error) => {
         console.error('Erro ao baixar PDF:', error);
+        this.isDownloading = false;
         alert('Erro ao baixar o PDF. Tente novamente.');
       }
     });
+  }
+
+  private downloadWithFallback(blob: Blob, fileName: string): void {
+    const link = document.createElement('a');
+    const url = window.URL.createObjectURL(blob);
+
+    link.href = url;
+    link.download = fileName;
+    link.style.display = 'none';
+
+    document.body.appendChild(link);
+    link.click();
+
+    // Cleanup
+    setTimeout(() => {
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    }, 100);
+  }
+
+  private openInNewTab(blob: Blob): void {
+    const url = window.URL.createObjectURL(blob);
+    const newWindow = window.open(url, '_blank');
+
+    if (!newWindow) {
+      alert('Popup bloqueado. Por favor, permita popups para este site e tente novamente.');
+    } else {
+      // Informar ao usuário como salvar
+      setTimeout(() => {
+        alert('O PDF foi aberto em uma nova aba. Use a opção "Salvar como" do navegador para baixar o arquivo.');
+      }, 1000);
+    }
+
+    // Cleanup after a delay
+    setTimeout(() => {
+      window.URL.revokeObjectURL(url);
+    }, 10000);
+  }
+
+  private isMobile(): boolean {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
   }
 }
