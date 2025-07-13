@@ -1,3 +1,5 @@
+@use 'sass:color';
+
 .login-container {
   height: 100vh;
   display: flex;
@@ -77,7 +79,7 @@
       justify-content: center;
 
       &:hover:not(:disabled) {
-        background-color: darken(#f52a8a, 10%) !important;
+        background-color: color.scale(#f52a8a, $lightness: -17.77%) !important;
       }
 
       &:disabled {
