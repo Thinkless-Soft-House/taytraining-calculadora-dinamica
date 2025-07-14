@@ -16,7 +16,12 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
-import { MatDialog, MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import {
+  MatDialog,
+  MatDialogModule,
+  MatDialogRef,
+  MAT_DIALOG_DATA,
+} from '@angular/material/dialog';
 
 import { QuizStoreService } from './quiz.store';
 import { Router } from '@angular/router';
@@ -77,7 +82,8 @@ export class QuizComponent implements OnInit, OnDestroy {
     {
       id: 'lightly-active',
       title: 'Pouco ativo',
-      description: 'Se movimenta pouco ao longo do dia e pratica exercício físico de 2 a 3 vezes por semana.',
+      description:
+        'Se movimenta pouco ao longo do dia e pratica exercício físico de 2 a 3 vezes por semana.',
     },
     {
       id: 'moderately-active',
@@ -180,7 +186,14 @@ export class QuizComponent implements OnInit, OnDestroy {
       const goal = this.step1Form.value.goal;
 
       // Log de entrada (manter para validação)
-      console.log('Dados:', { age, weight, height, bodyFatPercentage, activityLevel, goal });
+      console.log('Dados:', {
+        age,
+        weight,
+        height,
+        bodyFatPercentage,
+        activityLevel,
+        goal,
+      });
 
       const activityFactors: { [id: string]: number } = {
         sedentary: 1.2,
@@ -257,27 +270,37 @@ export class QuizComponent implements OnInit, OnDestroy {
         }
       );
 
-      const gastoEnergeticoForIndex = [
-        { op: 'plus', val: 0.1 }, // fat-loss
-        { op: 'plus', val: 0.1 }, // muscle-gain
-        { op: 'plus', val: 0 }, // maintain-weight
-      ];
-
       let valorGastoEnergetico;
 
-      if (percentualGorduraIndex >= 0 && percentualGorduraIndex <= 2) {
-        // Seleciona o valor conforme o objetivo (goal)
-        let goalIndex = 0;
-        if (goal === 'muscle-gain') goalIndex = 1;
-        else if (goal === 'maintain-weight') goalIndex = 2;
-        valorGastoEnergetico = gastoEnergeticoForIndex[goalIndex];
+      // if (percentualGorduraIndex >= 0 && percentualGorduraIndex <= 2) {
+      //   // Seleciona o valor conforme o objetivo (goal)
+      //   let goalIndex = 0;
+      //   if (goal === 'muscle-gain') goalIndex = 1;
+      //   else if (goal === 'maintain-weight') goalIndex = 2;
+      //   valorGastoEnergetico = gastoEnergeticoForIndex[goalIndex];
+      // } else {
+      //   valorGastoEnergetico =
+      //     gastoEnergetico[
+      //       percentualGorduraIndex >= 0
+      //         ? percentualGorduraIndex
+      //         : gastoEnergetico.length - 1
+      //     ];
+      // }
+
+      if (percentualGorduraIndex >= 3) {
+        // "BEEEEEM na merda" - FORÇA emagrecimento
+        valorGastoEnergetico = gastoEnergetico[percentualGorduraIndex];
       } else {
-        valorGastoEnergetico =
-          gastoEnergetico[
-            percentualGorduraIndex >= 0
-              ? percentualGorduraIndex
-              : gastoEnergetico.length - 1
-          ];
+        // Situação boa/normal - RESPEITA a escolha
+        if (goal === 'fat-loss') {
+          // Quer emagrecer mas está em boa forma - redução moderada
+          valorGastoEnergetico = { op: 'minus', val: 0.1 }; // -10%
+        } else if (goal === 'muscle-gain') {
+          valorGastoEnergetico = { op: 'plus', val: 0.1 }; // +10%
+        } else {
+          // maintain-weight
+          valorGastoEnergetico = gastoEnergetico[percentualGorduraIndex];
+        }
       }
 
       // GEB = 655,1 + (9,56 x P) + (1,85 x E) - (4,68 x I)
@@ -296,7 +319,14 @@ export class QuizComponent implements OnInit, OnDestroy {
       const calorias = Math.round(gastoEnergeticoTotal);
 
       // Log do resultado final (manter para validação)
-      console.log('Resultado:', { GEB, FA, gastoEnergeticoComFA, valorGastoEnergetico, gastoEnergeticoTotal, calorias });
+      console.log('Resultado:', {
+        GEB,
+        FA,
+        gastoEnergeticoComFA,
+        valorGastoEnergetico,
+        gastoEnergeticoTotal,
+        calorias,
+      });
       try {
         const menu: any = await firstValueFrom(
           this.menuService.findByCalories(calorias)
@@ -332,10 +362,10 @@ export class QuizComponent implements OnInit, OnDestroy {
       maxWidth: '400px',
       disableClose: true,
       panelClass: 'quiz-confirmation-dialog',
-      data: {}
+      data: {},
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result) => {
       if (result === 'restart') {
         // Limpa o sessionStorage e continua no quiz
         sessionStorage.removeItem('menuCalories');
@@ -362,59 +392,75 @@ export class QuizComponent implements OnInit, OnDestroy {
     <div class="dialog-container">
       <h2 mat-dialog-title>Você já tem um cardápio!</h2>
       <mat-dialog-content>
-        <p>Detectamos que você já possui um cardápio personalizado. O que deseja fazer?</p>
+        <p>
+          Detectamos que você já possui um cardápio personalizado. O que deseja
+          fazer?
+        </p>
       </mat-dialog-content>
       <mat-dialog-actions>
-        <button mat-button (click)="onContinue()" class="continue-btn">Ver meu cardápio</button>
-        <button mat-raised-button color="primary" (click)="onRestart()" class="restart-btn">Fazer novo quiz</button>
+        <button mat-button (click)="onContinue()" class="continue-btn">
+          Ver meu cardápio
+        </button>
+        <button
+          mat-raised-button
+          color="primary"
+          (click)="onRestart()"
+          class="restart-btn"
+        >
+          Fazer novo quiz
+        </button>
       </mat-dialog-actions>
     </div>
   `,
-  styles: [`
-    .dialog-container {
-      padding: 8px;
-    }
-    h2 {
-      color: #111827;
-      font-size: 1.4rem;
-      margin: 0 0 16px 0;
-      text-align: center;
-      font-weight: 700;
-    }
-    mat-dialog-content {
-      margin: 16px 0;
-      text-align: center;
-      color: #6b7280;
-      line-height: 1.5;
-    }
-    mat-dialog-actions {
-      display: flex;
-      flex-direction: row;
-      gap: 8px;
-      margin-top: 16px;
-      padding: 0;
-    }
-    .continue-btn, .restart-btn {
-      width: 100%;
-      height: 44px;
-      font-size: 1rem;
-      font-weight: 600;
-    }
-    .restart-btn {
-      background: #f52a8a !important;
-      color: white;
-    }
-    @media (min-width: 480px) {
+  styles: [
+    `
+      .dialog-container {
+        padding: 8px;
+      }
+      h2 {
+        color: #111827;
+        font-size: 1.4rem;
+        margin: 0 0 16px 0;
+        text-align: center;
+        font-weight: 700;
+      }
+      mat-dialog-content {
+        margin: 16px 0;
+        text-align: center;
+        color: #6b7280;
+        line-height: 1.5;
+      }
       mat-dialog-actions {
+        display: flex;
         flex-direction: row;
-        justify-content: space-between;
+        gap: 8px;
+        margin-top: 16px;
+        padding: 0;
       }
-      .continue-btn, .restart-btn {
-        width: auto;
-        flex: 1;
+      .continue-btn,
+      .restart-btn {
+        width: 100%;
+        height: 44px;
+        font-size: 1rem;
+        font-weight: 600;
       }
-    }
-  `]
+      .restart-btn {
+        background: #f52a8a !important;
+        color: white;
+      }
+      @media (min-width: 480px) {
+        mat-dialog-actions {
+          flex-direction: row;
+          justify-content: space-between;
+        }
+        .continue-btn,
+        .restart-btn {
+          width: auto;
+          flex: 1;
+        }
+      }
+    `,
+  ],
 })
 export class QuizConfirmationDialogComponent {
   constructor(

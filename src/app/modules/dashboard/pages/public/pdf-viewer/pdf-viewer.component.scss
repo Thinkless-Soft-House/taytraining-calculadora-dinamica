@@ -5,6 +5,29 @@
   flex-direction: column;
 }
 
+// Estilos para SnackBars personalizados
+::ng-deep {
+  .success-snackbar {
+    --mdc-snackbar-container-color: #10b981;
+    --mdc-snackbar-supporting-text-color: white;
+  }
+
+  .error-snackbar {
+    --mdc-snackbar-container-color: #ef4444;
+    --mdc-snackbar-supporting-text-color: white;
+  }
+
+  .warning-snackbar {
+    --mdc-snackbar-container-color: #f59e0b;
+    --mdc-snackbar-supporting-text-color: white;
+  }
+
+  .info-snackbar {
+    --mdc-snackbar-container-color: #3b82f6;
+    --mdc-snackbar-supporting-text-color: white;
+  }
+}
+
 .pdf-header {
   background: rgba(255, 255, 255, 0.95);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
