@@ -185,160 +185,99 @@ export class QuizComponent implements OnInit, OnDestroy {
       const activityLevel = this.step3Form.value.activityLevel;
       const goal = this.step1Form.value.goal;
 
-      // Log de entrada (manter para validação)
-      console.log('Dados:', {
-        age,
-        weight,
-        height,
-        bodyFatPercentage,
-        activityLevel,
-        goal,
+      // Log de entrada detalhado
+      console.log('🎬 [DEBUG] ===== INICIANDO NOVA CALCULADORA CALÓRICA =====');
+      console.log('📝 [DEBUG] Dados de entrada:', {
+        idade: `${age} anos`,
+        peso: `${weight} kg`,
+        altura: `${height} cm`,
+        percentualGordura: `${bodyFatPercentage}%`,
+        nivelAtividade: activityLevel,
+        objetivo: goal === 'fat-loss' ? 'Eliminar gordura' : goal === 'muscle-gain' ? 'Ganhar músculo' : 'Manter peso'
       });
 
-      const activityFactors: { [id: string]: number } = {
-        sedentary: 1.2,
-        'lightly-active': 1.3,
-        'moderately-active': 1.375,
-        'very-active': 1.55,
-        'extremely-active': 1.725,
-      };
-      const FA = activityFactors[activityLevel] || 1.2;
+      // Activity factors corrected according to nutritionist specifications
+      const activityFactor = this.getActivityFactor(activityLevel);
 
-      // Tipos auxiliares para faixaSituacao
-      type FaixaItem = { t?: number; b?: number };
-      type FaixaSituacaoType = { [key: number]: FaixaItem[] };
+      // ===== NEW NUTRITIONIST LOGIC =====
+      console.log('🚀 [DEBUG] Iniciando cálculo com nova lógica da nutricionista');
 
-      // Ajustar faixaSituacao para trabalhar com percentual de gordura em porcentagem (0-100)
-      const faixaSituacao: FaixaSituacaoType = {
-        20: [
-          { t: 16 },
-          { b: 16, t: 19 },
-          { b: 20, t: 28 },
-          { b: 29, t: 31 },
-          { b: 31 },
-        ],
-        30: [
-          { t: 17 },
-          { b: 17, t: 20 },
-          { b: 21, t: 29 },
-          { b: 30, t: 32 },
-          { b: 32 },
-        ],
-        40: [
-          { t: 18 },
-          { b: 18, t: 21 },
-          { b: 22, t: 30 },
-          { b: 31, t: 33 },
-          { b: 33 },
-        ],
-        50: [
-          { t: 19 },
-          { b: 19, t: 22 },
-          { b: 23, t: 31 },
-          { b: 32, t: 34 },
-          { b: 34 },
-        ],
-      };
+      // STEP 1: Get body fat ranges for age
+      const bodyFatRanges = this.getBodyFatRanges(age);
 
-      const gastoEnergetico = [
-        { op: 'plus', val: 0.12 },
-        { op: 'plus', val: 0.08 },
-        { op: 'plus', val: 0 },
-        { op: 'minus', val: 0.15 },
-        { op: 'minus', val: 0.25 },
-      ];
+      // STEP 2: Classify body fat percentage
+      const bodyFatIndex = this.getBodyFatIndex(bodyFatPercentage, bodyFatRanges);
 
-      // Pegar o index da dezena da idade
-      const dezenaIdade = Math.floor(age / 10) * 10;
-      const faixaCorretasituacao =
-        faixaSituacao[dezenaIdade] || faixaSituacao[50];
+      // STEP 3: Calculate caloric adjustment based on new logic
+      const calorieAdjustment = this.getCalorieAdjustment(bodyFatIndex, goal, bodyFatPercentage, age);
 
-      // Encontrar índice do percentual de gordura
-      const percentualGorduraIndex = faixaCorretasituacao.findIndex(
-        (item: FaixaItem) => {
-          if (item.t !== undefined && bodyFatPercentage <= item.t) {
-            return true;
-          }
-          if (item.b !== undefined && bodyFatPercentage >= item.b) {
-            if (item.t !== undefined) {
-              return bodyFatPercentage <= item.t;
-            } else {
-              return true;
-            }
-          }
-          return false;
-        }
-      );
+      // BMR = 655.1 + (9.56 x W) + (1.85 x H) - (4.68 x A)
+      // W = weight (kg) | H = height (cm) | A = age (years)
+      const basalMetabolicRate = 655.1 + 9.56 * weight + 1.85 * height - 4.68 * age;
+      console.log('🧮 [DEBUG] GEB (Harris-Benedict):', {
+        formula: 'GEB = 655,1 + (9,56 × P) + (1,85 × E) - (4,68 × I)',
+        peso: weight,
+        altura: height,
+        idade: age,
+        GEB: basalMetabolicRate.toFixed(1)
+      });
 
-      let valorGastoEnergetico;
+      const totalEnergyExpenditure = basalMetabolicRate * activityFactor;
+      console.log('🔥 [DEBUG] GET (GEB × FA):', {
+        GEB: basalMetabolicRate.toFixed(1),
+        FA: activityFactor,
+        GET: totalEnergyExpenditure.toFixed(1)
+      });
 
-      // if (percentualGorduraIndex >= 0 && percentualGorduraIndex <= 2) {
-      //   // Seleciona o valor conforme o objetivo (goal)
-      //   let goalIndex = 0;
-      //   if (goal === 'muscle-gain') goalIndex = 1;
-      //   else if (goal === 'maintain-weight') goalIndex = 2;
-      //   valorGastoEnergetico = gastoEnergeticoForIndex[goalIndex];
-      // } else {
-      //   valorGastoEnergetico =
-      //     gastoEnergetico[
-      //       percentualGorduraIndex >= 0
-      //         ? percentualGorduraIndex
-      //         : gastoEnergetico.length - 1
-      //     ];
-      // }
+      const adjustedEnergyExpenditure =
+        calorieAdjustment.val === 0
+          ? totalEnergyExpenditure
+          : calorieAdjustment.op === 'plus'
+          ? totalEnergyExpenditure * (1 + calorieAdjustment.val)
+          : totalEnergyExpenditure * (1 - calorieAdjustment.val);
 
-      if (percentualGorduraIndex >= 3) {
-        // "BEEEEEM na merda" - FORÇA emagrecimento
-        valorGastoEnergetico = gastoEnergetico[percentualGorduraIndex];
-      } else {
-        // Situação boa/normal - RESPEITA a escolha
-        if (goal === 'fat-loss') {
-          // Quer emagrecer mas está em boa forma - redução moderada
-          valorGastoEnergetico = { op: 'minus', val: 0.1 }; // -10%
-        } else if (goal === 'muscle-gain') {
-          valorGastoEnergetico = { op: 'plus', val: 0.1 }; // +10%
-        } else {
-          // maintain-weight
-          valorGastoEnergetico = gastoEnergetico[percentualGorduraIndex];
-        }
-      }
+      console.log('🎯 [DEBUG] Cálculo Final:', {
+        GET: totalEnergyExpenditure.toFixed(1),
+        ajuste: `${calorieAdjustment.op === 'plus' ? '+' : '-'}${(calorieAdjustment.val * 100).toFixed(0)}%`,
+        multiplicador: calorieAdjustment.op === 'plus'
+          ? (1 + calorieAdjustment.val).toFixed(3)
+          : (1 - calorieAdjustment.val).toFixed(3),
+        gastoEnergeticoTotal: adjustedEnergyExpenditure.toFixed(1)
+      });
 
-      // GEB = 655,1 + (9,56 x P) + (1,85 x E) - (4,68 x I)
-      // P = peso (kg) | E = estatura (cm) | I = idade (anos)
-      const GEB = 655.1 + 9.56 * weight + 1.85 * height - 4.68 * age;
+      const finalCalories = Math.round(adjustedEnergyExpenditure);
 
-      const gastoEnergeticoComFA = GEB * FA;
-
-      const gastoEnergeticoTotal =
-        valorGastoEnergetico.val === 0
-          ? gastoEnergeticoComFA
-          : valorGastoEnergetico.op === 'plus'
-          ? gastoEnergeticoComFA * (1 + valorGastoEnergetico.val)
-          : gastoEnergeticoComFA * (1 - valorGastoEnergetico.val);
-
-      const calorias = Math.round(gastoEnergeticoTotal);
-
-      // Log do resultado final (manter para validação)
-      console.log('Resultado:', {
-        GEB,
-        FA,
-        gastoEnergeticoComFA,
-        valorGastoEnergetico,
-        gastoEnergeticoTotal,
-        calorias,
+      // Final result log COMPLETE
+      console.log('✅ [DEBUG] RESULTADO FINAL:', {
+        '=== DADOS ENTRADA ===': '👇',
+        idade: `${age} anos`,
+        peso: `${weight} kg`,
+        altura: `${height} cm`,
+        percentualGordura: `${bodyFatPercentage}%`,
+        nivelAtividade: activityLevel,
+        objetivo: goal,
+        '=== CÁLCULOS ===': '👇',
+        GEB: `${basalMetabolicRate.toFixed(1)} kcal`,
+        fatorAtividade: activityFactor,
+        GET: `${totalEnergyExpenditure.toFixed(1)} kcal`,
+        ajusteCalórico: `${calorieAdjustment.op === 'plus' ? '+' : '-'}${(calorieAdjustment.val * 100).toFixed(0)}%`,
+        caloriasFinal: `${finalCalories} kcal`,
+        '=== CLASSIFICAÇÃO ===': '👇',
+        faixaEtaria: `${Math.floor(age / 10) * 10}-${Math.floor(age / 10) * 10 + 9} anos`,
+        classificacaoGordura: bodyFatIndex === 0 ? 'ATLETA' : bodyFatIndex === 1 ? 'BOM' : bodyFatIndex === 2 ? 'NORMAL' : bodyFatIndex === 3 ? 'ELEVADO' : 'MUITO ELEVADO'
       });
       try {
         const menu: any = await firstValueFrom(
-          this.menuService.findByCalories(calorias)
+          this.menuService.findByCalories(finalCalories)
         );
         const pdfUrl = menu?.pdfUrl || null;
         this.quizStore.updateMenuPdfUrl(pdfUrl);
-        this.quizStore.updateMenuCalories(calorias); // Salva as calorias usadas para o PDF
+        this.quizStore.updateMenuCalories(finalCalories); // Save calories used for PDF
         this.router.navigate(['/resultado-quiz']);
       } catch (error: any) {
-        // Se for erro 404, buscar o mais próximo
+        // If 404 error, find the closest match
         if (error?.status === 404) {
-          console.warn('Menu não encontrado para as calorias:', calorias);
+          console.warn('Menu não encontrado para as calorias:', finalCalories);
           this.router.navigate(['/resultado-quiz']);
         } else {
           alert(
@@ -380,6 +319,191 @@ export class QuizComponent implements OnInit, OnDestroy {
   onStepChange(event: any): void {
     window.scrollTo({ top: 0, behavior: 'smooth' }); // Scrolla para o topo ao mudar de step
     this.currentStep = event.selectedIndex + 1;
+  }
+
+  /**
+   * 🏃‍♀️ METHOD 1: Calculate activity factor
+   * Corrected according to nutritionist specifications
+   */
+  private getActivityFactor(activityLevel: string): number {
+    const activityFactors: { [id: string]: number } = {
+      sedentary: 1.2,
+      'lightly-active': 1.3,
+      'moderately-active': 1.4,      // ✅ Corrected from 1.375 to 1.4
+      'very-active': 1.5,            // ✅ Corrected from 1.55 to 1.5
+      'extremely-active': 1.7,       // ✅ Corrected from 1.725 to 1.7
+    };
+
+    const factor = activityFactors[activityLevel] || 1.2;
+    console.log('🏃‍♀️ [DEBUG] Fator de Atividade:', { activityLevel, factor });
+    return factor;
+  }
+
+  /**
+   * 📊 METHOD 2: Define body fat percentage ranges by age
+   * Now with more detailed classifications (20-29, 30-39, 40-49, 50-59)
+   */
+  private getBodyFatRanges(age: number): Array<{ t?: number; b?: number }> {
+    // Determine the correct age group
+    let ageGroup: number;
+    if (age >= 20 && age <= 29) ageGroup = 20;
+    else if (age >= 30 && age <= 39) ageGroup = 30;
+    else if (age >= 40 && age <= 49) ageGroup = 40;
+    else if (age >= 50 && age <= 59) ageGroup = 50;
+    else ageGroup = 50; // Default for ages > 60
+
+    const bodyFatRangesByAge: { [key: number]: Array<{ t?: number; b?: number }> } = {
+      20: [ // 20-29 years
+        { t: 16 },          // Index 0: ≤16% (ATHLETE)
+        { b: 16.1, t: 19 }, // Index 1: 16.1-19% (GOOD)
+        { b: 20, t: 28 },   // Index 2: 20-28% (NORMAL)
+        { b: 29, t: 31 },   // Index 3: 29-31% (HIGH)
+        { b: 31.1 },        // Index 4: >31% (VERY HIGH)
+      ],
+      30: [ // 30-39 years
+        { t: 17 },          // Index 0: ≤17% (ATHLETE)
+        { b: 17.1, t: 20 }, // Index 1: 17.1-20% (GOOD)
+        { b: 21, t: 29 },   // Index 2: 21-29% (NORMAL)
+        { b: 30, t: 32 },   // Index 3: 30-32% (HIGH)
+        { b: 32.1 },        // Index 4: >32% (VERY HIGH)
+      ],
+      40: [ // 40-49 years
+        { t: 18 },          // Index 0: ≤18% (ATHLETE)
+        { b: 18.1, t: 21 }, // Index 1: 18.1-21% (GOOD)
+        { b: 22, t: 30 },   // Index 2: 22-30% (NORMAL)
+        { b: 31, t: 33 },   // Index 3: 31-33% (HIGH)
+        { b: 33.1 },        // Index 4: >33% (VERY HIGH)
+      ],
+      50: [ // 50-59 years
+        { t: 19 },          // Index 0: ≤19% (ATHLETE)
+        { b: 19.1, t: 22 }, // Index 1: 19.1-22% (GOOD)
+        { b: 23, t: 31 },   // Index 2: 23-31% (NORMAL)
+        { b: 32, t: 34 },   // Index 3: 32-34% (HIGH)
+        { b: 34.1 },        // Index 4: >34% (VERY HIGH)
+      ],
+    };
+
+    const ranges = bodyFatRangesByAge[ageGroup];
+    console.log('📊 [DEBUG] Faixas de % Gordura:', {
+      age,
+      ageGroup: `${ageGroup}-${ageGroup + 9} anos`,
+      ranges
+    });
+
+    return ranges;
+  }
+
+  /**
+   * 🎯 METHOD 3: Find body fat percentage classification index
+   */
+  private getBodyFatIndex(bodyFatPercentage: number, ranges: Array<{ t?: number; b?: number }>): number {
+    const index = ranges.findIndex((item) => {
+      if (item.t !== undefined && bodyFatPercentage <= item.t) {
+        return true;
+      }
+      if (item.b !== undefined && bodyFatPercentage >= item.b) {
+        if (item.t !== undefined) {
+          return bodyFatPercentage <= item.t;
+        } else {
+          return true; // Last range (no upper limit)
+        }
+      }
+      return false;
+    });
+
+    const classificationLabels = [
+      'ATLETA (Índice 0)',
+      'BOM (Índice 1)',
+      'NORMAL (Índice 2)',
+      'ELEVADO (Índice 3)',
+      'MUITO ELEVADO (Índice 4)'
+    ];
+
+    console.log('🎯 [DEBUG] Classificação % Gordura:', {
+      bodyFatPercentage: `${bodyFatPercentage}%`,
+      index,
+      classification: classificationLabels[index] || 'NÃO ENCONTRADO'
+    });
+
+    return index >= 0 ? index : 4; // If not found, assume worst case
+  }
+
+  /**
+   * ⚖️ METHOD 4: Calculate caloric adjustment based on new nutritionist logic
+   */
+  private getCalorieAdjustment(
+    bodyFatIndex: number,
+    goal: string,
+    bodyFatPercentage: number,
+    age: number
+  ): { op: string; val: number } {
+    console.log('⚖️ [DEBUG] Iniciando cálculo de ajuste calórico:', {
+      bodyFatIndex,
+      goal,
+      bodyFatPercentage,
+      age
+    });
+
+    // CASE 1: HIGH body fat (indexes 3-4) - FORCE weight loss
+    if (bodyFatIndex >= 3) {
+      const adjustment = bodyFatIndex === 3
+        ? { op: 'minus', val: 0.25 } // -25%
+        : { op: 'minus', val: 0.30 }; // -30%
+
+      console.log('⚖️ [DEBUG] % Gordura ELEVADA - Forçando emagrecimento:', adjustment);
+      return adjustment;
+    }
+
+    // CASE 2: ATHLETE body fat (index 0) - Special logic
+    if (bodyFatIndex === 0) {
+      return this.getAthleteAdjustment(bodyFatPercentage, goal, age);
+    }
+
+    // CASE 3: GOOD/NORMAL body fat (indexes 1-2) - RESPECT the goal
+    console.log('⚖️ [DEBUG] % Gordura BOM/NORMAL - Respeitando objetivo escolhido');
+
+    if (goal === 'fat-loss') {
+      return { op: 'minus', val: 0.25 }; // -25%
+    } else if (goal === 'muscle-gain') {
+      return { op: 'plus', val: 0.10 };  // +10%
+    } else {
+      return { op: 'plus', val: 0 };     // No adjustment
+    }
+  }
+
+  /**
+   * 🏆 METHOD 5: Special logic for athletes (index 0)
+   */
+  private getAthleteAdjustment(bodyFatPercentage: number, goal: string, age: number): { op: string; val: number } {
+    console.log('🏆 [DEBUG] Calculando ajuste para ATLETA:', { bodyFatPercentage, goal, age });
+
+    // For ages 40-49 and 50-59, there's special subdivision
+    const needsSpecialSubdivision = age >= 40;
+
+    if (needsSpecialSubdivision) {
+      // Check if in ultra-athlete range (≤17%) or normal athlete (17.1-18% or 17.1-19%)
+      const isUltraAthlete = bodyFatPercentage <= 17;
+
+      if (isUltraAthlete) {
+        // Ultra athlete: more aggressive adjustments
+        console.log('🏆 [DEBUG] SUPER-ATLETA (≤17%) - Ajustes agressivos');
+        if (goal === 'fat-loss') return { op: 'minus', val: 0.20 }; // -20%
+        if (goal === 'muscle-gain') return { op: 'plus', val: 0.12 }; // +12%
+        return { op: 'plus', val: 0 }; // Maintain weight
+      } else {
+        // Normal athlete: standard adjustments
+        console.log('🏆 [DEBUG] ATLETA NORMAL (17.1-18/19%) - Ajustes padrões');
+        if (goal === 'fat-loss') return { op: 'minus', val: 0.25 }; // -25%
+        if (goal === 'muscle-gain') return { op: 'plus', val: 0.10 }; // +10%
+        return { op: 'plus', val: 0 }; // Maintain weight
+      }
+    } else {
+      // For ages 20-29 and 30-39: always ultra-athlete
+      console.log('🏆 [DEBUG] ATLETA JOVEM (20-39 anos) - Ajustes agressivos');
+      if (goal === 'fat-loss') return { op: 'minus', val: 0.20 }; // -20%
+      if (goal === 'muscle-gain') return { op: 'plus', val: 0.12 }; // +12%
+      return { op: 'plus', val: 0 }; // Maintain weight
+    }
   }
 }
 

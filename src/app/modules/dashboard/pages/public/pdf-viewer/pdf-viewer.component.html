@@ -1,73 +1,77 @@
 <div class="pdf-viewer-container">
-  <!-- Header com botão voltar -->
-  <div class="pdf-header">
-    <div class="header-content">
-      <button mat-button class="back-button" (click)="voltarParaResultado()">
-        <mat-icon>arrow_back</mat-icon>
-        Voltar
-      </button>
-
-      <h1 class="pdf-title">
-        <span class="cardapio-text">Cardápio</span>
-        <span class="personalizado-text">Personalizado</span>
-      </h1>
-
-      <button mat-raised-button color="primary" class="download-button"
-              (click)="baixarPdf()"
-              [disabled]="isDownloading || isLoading || hasError">
-        <mat-spinner *ngIf="isDownloading" diameter="20" style="display: inline-block; margin-right: 8px;"></mat-spinner>
-        <mat-icon *ngIf="!isDownloading">download</mat-icon>
-        {{ isDownloading ? 'Baixando...' : 'Baixar PDF' }}
-      </button>
-    </div>
+  <!-- Header simples -->
+  <div class="header">
+    <button mat-icon-button class="back-btn" (click)="goBackToResult()">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h1>Seu Cardápio</h1>
   </div>
 
-  <!-- Conteúdo principal -->
-  <div class="pdf-content">
+  <!-- Conteúdo centralizado -->
+  <div class="content">
     <!-- Loading state -->
-    <div *ngIf="isLoading" class="loading-container">
-      <mat-spinner diameter="60"></mat-spinner>
-      <p>Carregando seu cardápio personalizado...</p>
+    <div *ngIf="state.isLoading" class="loading">
+      <mat-spinner [diameter]="40"></mat-spinner>
+      <p>Carregando cardápio...</p>
     </div>
 
     <!-- Error state -->
-    <div *ngIf="hasError" class="error-container">
-      <div class="error-icon">⚠️</div>
-      <h2>Ops! Algo deu errado</h2>
-      <p>{{ errorMessage }}</p>
-      <div class="error-actions">
-        <button mat-raised-button color="primary" (click)="voltarParaQuiz()">
-          Refazer Quiz
-        </button>
-        <button mat-button (click)="voltarParaResultado()">
-          Voltar ao Resultado
-        </button>
-      </div>
+    <div *ngIf="state.hasError" class="error">
+      <mat-icon class="error-icon">error</mat-icon>
+      <h3>Algo deu errado</h3>
+      <p>{{ state.errorMessage }}</p>
+      <button mat-raised-button class="retry-btn" (click)="retakeQuiz()">
+        Refazer Quiz
+      </button>
     </div>
 
     <!-- PDF Viewer -->
-    <div *ngIf="!isLoading && !hasError && pdfSrc" class="pdf-viewer-wrapper">
-      <pdf-viewer
-        [src]="pdfSrc"
-        [render-text]="true"
-        [original-size]="false"
-        [fit-to-page]="true"
-        [zoom]="1"
-        [zoom-scale]="'page-fit'"
-        [show-all]="true"
-        [page]="1"
-        class="pdf-viewer"
-        (after-load-complete)="onPdfLoadComplete()"
-        (error)="onPdfError($event)">
-      </pdf-viewer>
-    </div>
-  </div>
+    <ng-container *ngIf="!state.isLoading && !state.hasError && state.pdfSrc">
+      <!-- Botão de download centralizado -->
+      <div class="download-section">
+        <button mat-raised-button class="download-btn" (click)="downloadPdf()">
+          <mat-icon>download</mat-icon>
+          Baixar PDF
+        </button>
+      </div>
 
-  <!-- Footer informativo -->
-  <div class="pdf-footer" *ngIf="!isLoading && !hasError">
-    <p>
-      💡 <strong>Dica:</strong> Este cardápio foi personalizado com base nas suas informações.
-      Para melhor visualização, utilize o botão de download.
-    </p>
+      <!-- PDF Preview -->
+      <div class="pdf-preview">
+        <pdf-viewer
+          [src]="state.pdfSrc"
+          [page]="state.currentPage"
+          [zoom]="state.zoom"
+          [original-size]="false"
+          [fit-to-page]="true"
+          [show-all]="false"
+          [render-text]="true"
+          [rotation]="0"
+          (after-load-complete)="onLoadComplete($event)"
+          (error)="onError($event)"
+          style="height: 550px; width: 100%;">
+        </pdf-viewer>
+      </div>
+
+      <!-- Controles de navegação -->
+      <div class="navigation">
+        <button mat-icon-button (click)="previousPage()" [disabled]="state.currentPage <= 1">
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+        <span class="page-info">{{ state.currentPage }} de {{ state.totalPages }}</span>
+        <button mat-icon-button (click)="nextPage()" [disabled]="state.currentPage >= state.totalPages">
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      </div>
+
+      <!-- Dicas de navegação -->
+      <div class="tips">
+        <p>💡 <strong>Dicas:</strong></p>
+        <ul>
+          <li>Use os botões ← → para navegar entre páginas</li>
+          <li>Toque no PDF para ampliar a visualização</li>
+          <li>Baixe o PDF para visualizar offline</li>
+        </ul>
+      </div>
+    </ng-container>
   </div>
 </div>

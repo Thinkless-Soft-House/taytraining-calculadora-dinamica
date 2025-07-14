@@ -27,6 +27,12 @@ export class MenuService extends BaseModelService {
   }
 
   getFileByCalories(calorias: number) {
-    return this.http.get(`${this.path}/find-by-calories/${calorias}/pdf`, { responseType: 'blob' });
+    return this.http.get(`${this.path}/find-by-calories/${calorias}/pdf`, {
+      responseType: 'blob',
+    });
+  }
+
+  getUrlFileByCalories(calorias: number) {
+    return `${this.path}/find-by-calories/${calorias}/url`;
   }
 }

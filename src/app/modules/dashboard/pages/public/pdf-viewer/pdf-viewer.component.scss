@@ -1,379 +1,215 @@
+// Mobile First - PDF Viewer Limpo
 .pdf-viewer-container {
   min-height: 100vh;
-  background: linear-gradient(to bottom right, #fdf2f8, #ffffff, #faf5ff);
+  background: #f8f9fa;
   display: flex;
   flex-direction: column;
 }
 
-// Estilos para SnackBars personalizados
-::ng-deep {
-  .success-snackbar {
-    --mdc-snackbar-container-color: #10b981;
-    --mdc-snackbar-supporting-text-color: white;
-  }
-
-  .error-snackbar {
-    --mdc-snackbar-container-color: #ef4444;
-    --mdc-snackbar-supporting-text-color: white;
-  }
-
-  .warning-snackbar {
-    --mdc-snackbar-container-color: #f59e0b;
-    --mdc-snackbar-supporting-text-color: white;
-  }
-
-  .info-snackbar {
-    --mdc-snackbar-container-color: #3b82f6;
-    --mdc-snackbar-supporting-text-color: white;
-  }
-}
-
-.pdf-header {
-  background: rgba(255, 255, 255, 0.95);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  padding: 16px 24px;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  border-bottom: 1px solid #e5e7eb;
-
-  .header-content {
-    max-width: 1200px;
-    margin: 0 auto;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    width: 100%;
-
-    @media (max-width: 768px) {
-      flex-direction: column;
-      gap: 12px;
-      align-items: stretch;
-    }
-
-    @media (max-width: 480px) {
-      gap: 8px;
-    }
-  }
-
-  .back-button {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: #6b7280;
-    font-weight: 500;
-    transition: color 0.2s;
-
-    &:hover {
-      color: #f52a8a;
-    }
-
-    mat-icon {
-      font-size: 20px;
-      width: 20px;
-      height: 20px;
-    }
-  }
-
-  .pdf-title {
-    font-size: 1.8rem;
-    font-weight: 700;
-    margin: 0;
-    text-align: center;
-    letter-spacing: -0.5px;
-    line-height: 1.2;
-
-    .cardapio-text {
-      color: #111827;
-    }
-
-    .personalizado-text {
-      color: #f52a8a;
-      margin-left: 0.5rem;
-    }
-
-    @media (max-width: 768px) {
-      font-size: 1.4rem;
-    }
-
-    @media (max-width: 480px) {
-      font-size: 1.3rem;
-      line-height: 1.3;
-
-      .personalizado-text {
-        margin-left: 0.3rem;
-      }
-    }
-  }
-
-  .download-button {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: #f52a8a !important;
-    font-weight: 600;
-    padding: 0 24px;
-    height: 44px;
-    color: white;
-
-    &:hover {
-      background: #e91e63 !important;
-    }
-
-    mat-icon {
-      font-size: 18px;
-      width: 18px;
-      height: 18px;
-    }
-  }
-}
-
-.pdf-content {
-  flex: 1;
+.header {
+  background: #fff;
+  padding: 16px 20px;
+  border-bottom: 1px solid #eee;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  padding: 24px;
-  max-width: 1200px;
-  margin: 0 auto;
-  width: 100%;
-}
+  gap: 12px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 
-.loading-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 400px;
-  gap: 24px;
-
-  p {
-    font-size: 1.1rem;
-    color: #6b7280;
-    margin: 0;
-    text-align: center;
-  }
-
-  mat-spinner {
+  .back-btn {
     color: #f52a8a;
+    mat-icon {
+      font-size: 24px;
+    }
+  }
+
+  h1 {
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #333;
   }
 }
 
-.error-container {
+.content {
+  flex: 1;
+  max-width: 500px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.loading {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 400px;
-  text-align: center;
-  width: 100%;
-  max-width: 95vw;
-  margin: 0 auto;
-  padding: 16px;
+  min-height: 200px;
   gap: 16px;
 
-  .error-icon {
-    font-size: 3rem;
-    margin-bottom: 8px;
-  }
-
-  h2 {
-    font-size: 1.3rem;
-    color: #111827;
-    margin: 0;
-    font-weight: 700;
-    word-wrap: break-word;
-
-    @media (min-width: 768px) {
-      font-size: 1.5rem;
+  mat-spinner {
+    ::ng-deep .mat-mdc-progress-spinner circle {
+      stroke: #f52a8a;
     }
   }
 
   p {
-    font-size: 0.95rem;
-    color: #6b7280;
     margin: 0;
-    line-height: 1.5;
-    word-wrap: break-word;
-    max-width: 100%;
+    color: #666;
+    font-size: 1rem;
+  }
+}
 
-    @media (min-width: 768px) {
-      font-size: 1rem;
-    }
+.error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 20px;
+  gap: 12px;
+
+  .error-icon {
+    font-size: 48px;
+    color: #dc2626;
   }
 
-  .error-actions {
-    display: flex;
-    gap: 12px;
-    margin-top: 8px;
-    flex-direction: column;
-    width: 100%;
-    max-width: 300px;
+  h3 {
+    margin: 0;
+    color: #dc2626;
+    font-size: 1.2rem;
+  }
 
-    @media (min-width: 480px) {
-      flex-direction: row;
-      flex-wrap: wrap;
-      justify-content: center;
-      max-width: none;
+  p {
+    margin: 0;
+    color: #666;
+    line-height: 1.4;
+  }
+
+  .retry-btn {
+    background: #f52a8a !important;
+    color: white !important;
+    margin-top: 8px;
+  }
+}
+
+.download-section {
+  text-align: center;
+  margin-bottom: 20px;
+
+  .download-btn {
+    background: #f52a8a !important;
+    color: white !important;
+    padding: 12px 24px;
+    border-radius: 25px;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(245, 42, 138, 0.3);
+
+    mat-icon {
+      margin-right: 8px;
     }
 
-    button {
-      width: 100%;
-      min-width: auto;
-      padding: 12px 16px;
-      font-size: 0.9rem;
-
-      @media (min-width: 480px) {
-        width: auto;
-        min-width: 140px;
-        font-size: 1rem;
-      }
+    &:hover {
+      box-shadow: 0 6px 16px rgba(245, 42, 138, 0.4);
     }
   }
 }
 
-.pdf-viewer-wrapper {
-  width: 100%;
-  max-width: 900px;
+.pdf-preview {
   background: #fff;
   border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   overflow: hidden;
-  min-height: 600px;
-  margin: 0 auto;
+  margin-bottom: 16px;
 
-  @media (max-width: 768px) {
-    border-radius: 8px;
-    min-height: 500px;
-    max-width: 100%;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-  }
-
-  @media (max-width: 480px) {
-    border-radius: 6px;
-    min-height: 400px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  }
-
-  .pdf-viewer {
-    width: 100%;
-    min-height: 600px;
-    display: block;
-
-    @media (max-width: 768px) {
-      min-height: 500px;
-    }
-
-    @media (max-width: 480px) {
-      min-height: 400px;
-    }
-  }
-}
-
-.pdf-footer {
-  background: rgba(255, 255, 255, 0.9);
-  padding: 16px 24px;
-  text-align: center;
-  border-top: 1px solid #e5e7eb;
-  margin-top: auto;
-
-  p {
-    margin: 0;
-    color: #6b7280;
-    font-size: 0.95rem;
-    max-width: 600px;
-    margin: 0 auto;
-    line-height: 1.5;
-
-    strong {
-      color: #111827;
-    }
-  }
-}
-
-// Responsividade - Mobile First
-@media (max-width: 768px) {
-  .pdf-header {
-    padding: 12px 16px;
-
-    .header-content {
-      flex-direction: column;
-      align-items: stretch;
-      gap: 8px;
-
-      .back-button {
-        align-self: flex-start;
-      }
-
-      .pdf-title {
-        text-align: center;
-        font-size: 1.4rem;
-      }
-
-      .download-button {
-        align-self: stretch;
-        justify-content: center;
-      }
-    }
-  }
-
-  .pdf-content {
-    padding: 12px;
-  }
-
-  .pdf-viewer-wrapper {
-    border-radius: 8px;
-    min-height: 500px;
-    margin: 0;
-    width: 100%;
-
-    .pdf-viewer {
-      min-height: 500px;
-    }
-  }
-
-  .loading-container {
-    min-height: 300px;
-    padding: 16px;
-
-    p {
-      font-size: 1rem;
-      padding: 0 16px;
-    }
-  }
-
-  .pdf-footer {
-    padding: 12px 16px;
-
-    p {
-      font-size: 0.9rem;
-      line-height: 1.4;
-    }
-  }
-}
-
-// Customização específica do ng2-pdf-viewer
-::ng-deep {
   pdf-viewer {
     display: block;
     width: 100%;
+  }
+}
 
+.navigation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  background: #fff;
+  padding: 12px;
+  border-radius: 25px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
+
+  button {
+    color: #f52a8a;
+
+    &:disabled {
+      color: #ccc;
+    }
+  }
+
+  .page-info {
+    font-weight: 600;
+    color: #333;
+    min-width: 80px;
+    text-align: center;
+  }
+}
+
+.tips {
+  background: #fff;
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+
+  p {
+    margin: 0 0 8px 0;
+    color: #f52a8a;
+    font-weight: 600;
+  }
+
+  ul {
+    margin: 0;
+    padding-left: 20px;
+
+    li {
+      color: #666;
+      margin-bottom: 4px;
+      line-height: 1.4;
+      font-size: 0.9rem;
+    }
+  }
+}
+
+// Responsividade para telas muito pequenas
+@media (max-width: 480px) {
+  .content {
+    padding: 16px;
+  }
+
+  .header {
+    padding: 12px 16px;
+
+    h1 {
+      font-size: 1.2rem;
+    }
+  }
+
+  .download-btn {
+    padding: 10px 20px !important;
+    font-size: 0.9rem !important;
+  }
+}
+
+// Customização global do PDF viewer
+::ng-deep {
+  pdf-viewer {
     .ng2-pdf-viewer-container {
-      overflow: auto;
-      position: relative;
-
       .pdfViewer {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 20px 0;
+        padding: 10px;
 
         .page {
-          margin: 10px auto;
-          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-          border-radius: 4px;
-          overflow: hidden;
+          margin: 0 auto 10px auto;
+          border-radius: 8px;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
       }
     }
