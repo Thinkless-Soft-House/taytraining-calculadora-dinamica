@@ -4,7 +4,55 @@
     <button mat-icon-button class="back-btn" (click)="goBackToResult()">
       <mat-icon>arrow_back</mat-icon>
     </button>
-    <h1>Seu Cardápio</h1>
+    <h1 (click)="onHeaderClick()" [class.debug-active]="state.debugMode">
+      Seu Cardápio
+      <span *ngIf="state.debugMode" class="debug-indicator">🔧</span>
+    </h1>
+  </div>
+
+  <!-- Debug Panel -->
+  <div *ngIf="state.debugMode" class="debug-panel">
+    <div class="debug-header">
+      <h3>🔧 Modo Desenvolvedor</h3>
+      <button mat-icon-button (click)="clearDebugLogs()">
+        <mat-icon>clear</mat-icon>
+      </button>
+    </div>
+
+    <div class="debug-content">
+      <div class="debug-info">
+        <strong>PDF Size:</strong> {{ state.currentPdfBlob ? (state.currentPdfBlob.size / 1024 / 1024).toFixed(2) + 'MB' : 'N/A' }}<br>
+        <strong>User Agent:</strong> {{ userAgent }}<br>
+        <strong>Android WebView:</strong> {{ isAndroidWebView() }}<br>
+        <strong>iOS WebView:</strong> {{ isIOSWebView() }}
+      </div>
+
+      <div class="debug-logs">
+        <h4>Logs de Debug ({{ state.debugLogs.length }})</h4>
+        <div class="log-container">
+          <div
+            *ngFor="let log of state.debugLogs; trackBy: trackByIndex"
+            class="log-item"
+            [class.log-success]="log.status === 'success'"
+            [class.log-error]="log.status === 'error'"
+            [class.log-warning]="log.status === 'warning'"
+            [class.log-info]="log.status === 'info'">
+
+            <div class="log-header">
+              <span class="log-time">{{ log.timestamp }}</span>
+              <span class="log-step">{{ log.step }}</span>
+              <span class="log-status" [class]="'status-' + log.status">{{ log.status }}</span>
+            </div>
+
+            <div class="log-message">{{ log.message }}</div>
+
+            <div *ngIf="log.details" class="log-details">
+              <pre>{{ log.details | json }}</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Conteúdo centralizado -->
