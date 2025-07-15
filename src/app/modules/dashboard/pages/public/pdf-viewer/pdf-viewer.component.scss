@@ -222,9 +222,11 @@
   border: 1px solid #333;
   border-radius: 8px;
   margin: 0 20px 20px 20px;
-  max-height: 400px;
+  max-height: 500px;
   overflow: hidden;
   box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  position: relative;
+  z-index: 1000;
 
   .debug-header {
     background: #2d2d2d;
@@ -250,8 +252,10 @@
 
   .debug-content {
     padding: 16px;
-    max-height: 350px;
+    max-height: 450px;
     overflow-y: auto;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
 
     .debug-info {
       background: #2d2d2d;
@@ -274,11 +278,34 @@
       }
 
       .log-container {
-        max-height: 200px;
+        max-height: 300px;
         overflow-y: auto;
         border: 1px solid #333;
         border-radius: 4px;
         background: #0f0f0f;
+        scroll-behavior: smooth;
+
+        // Melhor scroll para mobile
+        -webkit-overflow-scrolling: touch;
+
+        // Força o scroll quando necessário
+        &::-webkit-scrollbar {
+          width: 8px;
+        }
+
+        &::-webkit-scrollbar-track {
+          background: #1a1a1a;
+          border-radius: 4px;
+        }
+
+        &::-webkit-scrollbar-thumb {
+          background: #555;
+          border-radius: 4px;
+
+          &:hover {
+            background: #777;
+          }
+        }
       }
 
       .log-item {

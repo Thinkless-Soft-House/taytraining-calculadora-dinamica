@@ -222,6 +222,22 @@ export class PdfViewerComponent implements OnInit, OnDestroy {
     if (this.state.debugLogs.length > 50) {
       this.state.debugLogs.shift();
     }
+
+    // Auto-scroll para o último log
+    setTimeout(() => {
+      this.scrollToBottomOfLogs();
+    }, 100);
+  }
+
+  private scrollToBottomOfLogs(): void {
+    try {
+      const logContainer = document.querySelector('.log-container');
+      if (logContainer) {
+        logContainer.scrollTop = logContainer.scrollHeight;
+      }
+    } catch (error) {
+      // Ignora erros de scroll
+    }
   }
 
   clearDebugLogs(): void {
@@ -301,7 +317,13 @@ export class PdfViewerComponent implements OnInit, OnDestroy {
         this.downloadViaBlobUrl(fileName);
       }
 
-      this.addDebugLog('completion', 'success', 'Download iniciado com sucesso');
+      // Não marca como "sucesso" imediatamente para Android, pois pode falhar
+      if (isAndroid) {
+        this.addDebugLog('completion', 'info', 'Processo de download Android iniciado - aguarde os resultados');
+      } else {
+        this.addDebugLog('completion', 'success', 'Download iniciado com sucesso');
+      }
+
       console.log('✅ Download iniciado');
     } catch (error) {
       this.addDebugLog('error', 'error', 'Erro no processo de download', error);
@@ -331,62 +353,130 @@ export class PdfViewerComponent implements OnInit, OnDestroy {
   }
 
   private downloadForAndroid(fileName: string): void {
-    this.addDebugLog('android-method1', 'info', 'Tentando método 1: Blob URL com clique imediato');
+    this.addDebugLog('android-strategy', 'info', 'Android WebView detectado - usando estratégia específica');
+
+    // Para Android WebView, a melhor estratégia é abrir direto o PDF
+    this.addDebugLog('android-method1', 'info', 'Método 1: Navegação direta para visualizar PDF');
 
     try {
-      // Método 1: Tenta navegação direta (mais compatível com Android)
       const url = URL.createObjectURL(this.currentPdfBlob!);
-      this.addDebugLog('android-method1', 'success', 'Blob URL criada com sucesso');
+      this.addDebugLog('android-method1', 'success', 'Blob URL criada para navegação');
 
-      // Cria link invisível mas não usa setTimeout
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = fileName;
-      link.style.display = 'none';
-      this.addDebugLog('android-method1', 'info', 'Link elemento criado');
+      // Estratégia 1: Abrir em nova janela/tab (mais compatível com Android)
+      const newWindow = window.open(url, '_blank');
 
-      document.body.appendChild(link);
-      this.addDebugLog('android-method1', 'info', 'Link adicionado ao DOM');
+      if (newWindow) {
+        this.addDebugLog('android-method1', 'success', 'PDF aberto em nova janela - usuário pode usar "Baixar" do navegador');
 
-      // Clique imediato sem delay
-      link.click();
-      this.addDebugLog('android-method1', 'info', 'Clique executado');
-
-      // Cleanup imediato
-      document.body.removeChild(link);
-      this.addDebugLog('android-method1', 'info', 'Link removido do DOM');
-
-      setTimeout(() => {
-        URL.revokeObjectURL(url);
-        this.addDebugLog('android-method1', 'success', 'Blob URL revogada - Método 1 concluído');
-      }, 100);
-
-    } catch (error) {
-      this.addDebugLog('android-method1', 'error', 'Método 1 falhou', error);
-      console.error('Método 1 falhou, tentando método 2:', error);
-
-      // Método 2: Fallback para window.open
-      this.addDebugLog('android-method2', 'info', 'Tentando método 2: window.open');
-      try {
-        const url = URL.createObjectURL(this.currentPdfBlob!);
-        this.addDebugLog('android-method2', 'success', 'Blob URL criada para window.open');
-
-        const newWindow = window.open(url, '_blank');
-        this.addDebugLog('android-method2', 'info', `Window.open executado, resultado: ${newWindow ? 'sucesso' : 'falhou'}`);
+        // Instrução para o usuário via log
+        this.addDebugLog('android-instruction', 'info', 'INSTRUÇÃO: Use o menu "⋮" do navegador e selecione "Baixar"');
 
         setTimeout(() => {
           URL.revokeObjectURL(url);
-          this.addDebugLog('android-method2', 'success', 'Blob URL revogada - Método 2 concluído');
+          this.addDebugLog('android-method1', 'success', 'Blob URL revogada - Método 1 concluído');
+        }, 2000);
+
+        return; // Sucesso - não precisa tentar outros métodos
+      } else {
+        this.addDebugLog('android-method1', 'warning', 'Popup bloqueado - tentando navegação direta');
+
+        // Se popup bloqueado, tenta navegação direta na mesma janela
+        window.location.href = url;
+        this.addDebugLog('android-method1', 'info', 'Navegação direta executada');
+
+        setTimeout(() => {
+          URL.revokeObjectURL(url);
+        }, 2000);
+
+        return;
+      }
+
+    } catch (error) {
+      this.addDebugLog('android-method1', 'error', 'Método 1 falhou', error);
+    }
+
+    // Método 2: Fallback para Data URL embedded
+    this.addDebugLog('android-method2', 'info', 'Tentando método 2: Data URL embedded');
+    this.downloadViaDataUrlAndroid(fileName);
+  }
+
+  private downloadViaDataUrlAndroid(fileName: string): void {
+    this.addDebugLog('android-dataurl', 'info', 'Convertendo para Data URL otimizada para Android');
+
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      const dataUrl = reader.result as string;
+      this.addDebugLog('android-dataurl', 'success', 'PDF convertido para Data URL');
+
+      // Para Android: criar um link que o usuário pode clicar
+      this.addDebugLog('android-dataurl', 'info', 'Criando link de download visível');
+
+      try {
+        // Tenta primeiro o método tradicional
+        const link = document.createElement('a');
+        link.href = dataUrl;
+        link.download = fileName;
+
+        // Força o clique
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        this.addDebugLog('android-dataurl', 'success', 'Download Data URL executado');
+
+        // Se chegou até aqui, pode ser que funcionou
+        setTimeout(() => {
+          this.addDebugLog('android-dataurl', 'info', 'Se não baixou, tente segurar no PDF e selecionar "Baixar"');
         }, 1000);
 
-      } catch (error2) {
-        this.addDebugLog('android-method2', 'error', 'Método 2 falhou', error2);
-        console.error('Método 2 falhou, tentando método 3:', error2);
+      } catch (error) {
+        this.addDebugLog('android-dataurl', 'error', 'Data URL falhou', error);
 
-        // Método 3: Data URL como último recurso
-        this.addDebugLog('android-method3', 'info', 'Tentando método 3: Data URL como último recurso');
-        this.downloadViaDataUrl(fileName);
+        // Último recurso: mostrar o PDF inline
+        this.addDebugLog('android-fallback', 'info', 'Último recurso: abrindo PDF para visualização');
+        this.showPdfInline(dataUrl);
       }
+    };
+
+    reader.onerror = (error) => {
+      this.addDebugLog('android-dataurl', 'error', 'Erro ao converter para Data URL', error);
+      this.fallbackDownload();
+    };
+
+    reader.readAsDataURL(this.currentPdfBlob!);
+  }
+
+  private showPdfInline(dataUrl: string): void {
+    this.addDebugLog('android-inline', 'info', 'Abrindo PDF inline para acesso direto');
+
+    // Cria uma nova janela com o PDF
+    const newWindow = window.open('', '_blank');
+
+    if (newWindow) {
+      newWindow.document.write(`
+        <html>
+          <head>
+            <title>Cardápio PDF</title>
+            <style>
+              body { margin: 0; padding: 20px; text-align: center; font-family: Arial, sans-serif; }
+              .instructions { background: #f0f0f0; padding: 10px; margin-bottom: 20px; border-radius: 5px; }
+              iframe { border: none; width: 100%; height: 80vh; }
+            </style>
+          </head>
+          <body>
+            <div class="instructions">
+              <strong>📱 Para baixar no Android:</strong><br>
+              Use o menu "⋮" do navegador e selecione "Baixar página" ou "Salvar página"
+            </div>
+            <iframe src="${dataUrl}" type="application/pdf"></iframe>
+          </body>
+        </html>
+      `);
+
+      this.addDebugLog('android-inline', 'success', 'PDF exibido inline com instruções de download');
+    } else {
+      this.addDebugLog('android-inline', 'error', 'Não foi possível abrir janela inline');
     }
   }
 
